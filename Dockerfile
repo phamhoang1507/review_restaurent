@@ -16,6 +16,8 @@ RUN groupadd --gid 10001 app \
     && useradd --uid 10001 --gid app --no-create-home app
 
 COPY --chown=app:app app ./app
+COPY --chown=app:app alembic.ini ./
+COPY --chown=app:app migrations ./migrations
 
 USER app
 

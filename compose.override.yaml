@@ -10,3 +10,5 @@ services:
       - --reload
     volumes:
       - ./app:/app/app:ro
+      - ./migrations:/app/migrations:ro
+      - ./alembic.ini:/app/alembic.ini:ro

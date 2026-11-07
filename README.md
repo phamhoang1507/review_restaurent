@@ -127,7 +127,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Triển khai SQLAlchemy models và Alembic migration đầu tiên theo database schema đã duyệt.
+Triển khai places, reviews và review_images cùng migration tiếp theo.
 
 ## API development
 
@@ -188,3 +188,49 @@ docker compose logs --tail=100 api
    curl --fail http://localhost:8000/health/ready
    docker compose ps
    ```
+
+## Database migrations
+
+Các bảng hiện tại:
+
+- users: tài khoản, role và unique index trên lower(email).
+- provinces: tỉnh/thành.
+- districts: quận/huyện, tham chiếu provinces.
+- alembic_version: revision do Alembic quản lý.
+
+Áp dụng migrations:
+
+```bash
+docker compose exec api alembic upgrade head
+```
+
+Xem revision và kiểm tra schema drift:
+
+```bash
+docker compose exec api alembic current
+docker compose exec api alembic check
+```
+
+Xem SQL trước khi apply:
+
+```bash
+docker compose exec api alembic upgrade head --sql
+```
+
+Lệnh --sql xuất toàn bộ đường migration từ base đến head theo mặc định;
+không chạy trực tiếp SQL này trên database đã có các bảng tương ứng.
+
+Rollback một revision:
+
+```bash
+docker compose exec api alembic downgrade -1
+```
+
+Rollback migration đầu tiên sẽ xóa users, provinces và districts cùng dữ liệu.
+Chỉ thực hiện trên database local dùng để kiểm thử hoặc theo kế hoạch migration
+đã được review.
+
+Migrations được chạy bằng lệnh riêng, không tự chạy trong API startup.
+
+updated_at tự cập nhật khi thao tác qua SQLAlchemy ORM.
+SQL update trực tiếp cần tự đặt updated_at vì chưa có database trigger.
