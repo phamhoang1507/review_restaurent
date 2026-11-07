@@ -127,7 +127,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Thêm FastAPI, dependency lockfile, Dockerfile và health endpoints.
+Triển khai SQLAlchemy models và Alembic migration đầu tiên theo database schema đã duyệt.
 
 ## API development
 

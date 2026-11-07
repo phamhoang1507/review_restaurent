@@ -13,3 +13,9 @@
 - Redis client lifecycle và dependency readiness checks.
 - Non-root API Dockerfile và development auto-reload.
 - Python dependency management bằng uv và uv.lock.
+
+### Verified
+
+- Docker Compose build và startup thành công trên Ubuntu WSL2 với Docker Desktop.
+- API, PostgreSQL và Redis đều healthy.
+- Liveness và readiness endpoints trả HTTP 200.
