@@ -73,5 +73,6 @@
 
 ## Current step
 
-Revision 0002 applied with no schema drift.
-Awaiting constraint checks and API readiness verification.
+Auth foundation: Argon2id helpers, Auth settings and revision 0003.
+Awaiting local verification.
+Next: register, login, current user, refresh rotation and logout.

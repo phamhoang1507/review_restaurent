@@ -271,3 +271,26 @@ docker compose \
 ```
 
 Review migration trước khi apply. Không tạo lại revision 0002 đã tồn tại.
+
+## Auth foundation
+
+- Password hashing: Argon2id.
+- Auth configuration: app/core/auth_config.py.
+- JWT signing: HS256, issuer localspot-api, audience localspot-web.
+- Access token lifetime: 15 minutes.
+- Refresh token lifetime: 7 days.
+- auth_sessions stores SHA-256 refresh-token hashes and rotation families.
+- JWT_SECRET_KEY must contain at least 32 characters; never commit it.
+- REFRESH_COOKIE_SECURE=false is for local HTTP only; use true with HTTPS.
+- Auth endpoints and refresh rotation are not implemented yet.
+
+## Docker Hub
+
+Authenticate with docker login.
+
+Build and push a clean Git revision:
+docker build -t <username>/localspot-api:<commit> .
+docker push <username>/localspot-api:<commit>
+
+The image contains application code and dependencies.
+Runtime configuration and database data are not included.

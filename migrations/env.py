@@ -7,6 +7,7 @@ from app.modules.locations.models import District, Province
 from app.modules.places.models import Place
 from app.modules.reviews.models import Review, ReviewImage
 from app.modules.users.models import User
+from app.modules.auth.models import AuthSession
 
 target_metadata = Base.metadata
 
@@ -17,6 +18,7 @@ REGISTERED_MODELS = (
     Place,
     Review,
     ReviewImage,
+    AuthSession,
 )
 
 

@@ -24,6 +24,10 @@
 - Composite indexes for district places and place reviews.
 - Transactional SQL checks for constraints and metadata cascade deletion.
 - Versioned project context in docs/project-state.md.
+- Argon2id password hashing and verification helpers.
+- Validated Auth settings and environment template.
+- AuthSession model and revision 0003.
+- Docker Hub build/push instructions.
 
 ### Verified
 
