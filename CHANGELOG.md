@@ -28,6 +28,10 @@
 - Validated Auth settings and environment template.
 - AuthSession model and revision 0003.
 - Docker Hub build/push instructions.
+- Register, login and current-user endpoints.
+- JWT access-token validation with issuer, audience and expiration.
+- Database-backed active-user and admin authorization dependencies.
+- Auth API integration check script.
 
 ### Verified
 

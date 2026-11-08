@@ -73,6 +73,6 @@
 
 ## Current step
 
-Auth foundation: Argon2id helpers, Auth settings and revision 0003.
-Awaiting local verification.
-Next: register, login, current user, refresh rotation and logout.
+Register, login and current-user endpoints verified locally.
+Access-token validation and password hashing are working.
+Refresh rotation, logout and rate limiting are not implemented yet.

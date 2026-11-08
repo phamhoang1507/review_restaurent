@@ -13,4 +13,5 @@ dependencies = [
     "alembic>=1.14,<2",
     "argon2-cffi>=25.1,<26",
     "PyJWT>=2.10,<3",
+    "email-validator>=2.2,<3",
 ]

@@ -282,7 +282,22 @@ Review migration trước khi apply. Không tạo lại revision 0002 đã tồn
 - auth_sessions stores SHA-256 refresh-token hashes and rotation families.
 - JWT_SECRET_KEY must contain at least 32 characters; never commit it.
 - REFRESH_COOKIE_SECURE=false is for local HTTP only; use true with HTTPS.
-- Auth endpoints and refresh rotation are not implemented yet.
+
+## Auth API
+
+- POST /api/v1/auth/register: tạo user, không cho client chọn role.
+- POST /api/v1/auth/login: trả JWT access token.
+- GET /api/v1/users/me: yêu cầu Bearer access token.
+- Password đăng ký: 12–128 ký tự.
+- Email được normalize về lowercase trước khi lưu và lookup.
+- Refresh rotation, logout và rate limiting chưa được triển khai.
+- Chỉ chạy local; hoàn tất rate limiting trước khi mở Auth ra public.
+
+Verification: python3 scripts/check_auth.py
+scripts/check_auth.py prints the generated local test account credentials.
+These credentials are for local testing only.
+
+Script tạo và giữ lại một user test ngẫu nhiên trong database local.
 
 ## Docker Hub
 
