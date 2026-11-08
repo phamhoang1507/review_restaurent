@@ -299,6 +299,17 @@ These credentials are for local testing only.
 
 Script tạo và giữ lại một user test ngẫu nhiên trong database local.
 
+## Auth rate limits
+
+- Login: 10 requests per 60 seconds per client IP.
+- Registration: 5 requests per 60 seconds per client IP.
+- Limits are configurable through AUTH_RATE_WINDOW_SECONDS,
+  LOGIN_RATE_LIMIT and REGISTER_RATE_LIMIT.
+- Exceeding a limit returns 429 with Retry-After.
+- Redis failure returns 503 for these Auth endpoints.
+- Clients sharing an IP share the same endpoint quota.
+- Reverse-proxy client IP handling must be configured at deployment.
+
 ## Docker Hub
 
 Authenticate with docker login.

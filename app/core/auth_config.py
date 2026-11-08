@@ -22,6 +22,10 @@ class AuthSettings(BaseSettings):
     refresh_cookie_name: str = "localspot_refresh"
     refresh_cookie_secure: bool = False
 
+    auth_rate_window_seconds: int = Field(default=60, ge=1, le=3600)
+    login_rate_limit: int = Field(default=10, ge=1, le=1000)
+    register_rate_limit: int = Field(default=5, ge=1, le=1000)
+
 
 @lru_cache
 def get_auth_settings() -> AuthSettings:

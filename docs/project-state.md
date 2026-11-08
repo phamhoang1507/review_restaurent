@@ -73,6 +73,5 @@
 
 ## Current step
 
-Register, login and current-user endpoints verified locally.
-Access-token validation and password hashing are working.
-Refresh rotation, logout and rate limiting are not implemented yet.
+Auth endpoint rate limiting verified locally.
+Next: refresh-token rotation, logout and CSRF protection.

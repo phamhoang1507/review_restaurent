@@ -8,6 +8,7 @@ from app.db.session import get_session
 from app.modules.auth.schemas import LoginRequest, RegisterRequest, TokenResponse
 from app.modules.auth.service import authenticate_user, register_user
 from app.modules.users.schemas import UserResponse
+from app.modules.auth.rate_limit import limit_login, limit_registration
 
 router = APIRouter(
     prefix="/auth",
@@ -19,6 +20,7 @@ router = APIRouter(
     "/register",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(limit_registration)],
 )
 def register(
     data: RegisterRequest,
@@ -31,6 +33,7 @@ def register(
 @router.post(
     "/login",
     response_model=TokenResponse,
+    dependencies=[Depends(limit_login)],
 )
 def login(
     data: LoginRequest,

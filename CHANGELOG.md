@@ -32,6 +32,9 @@
 - JWT access-token validation with issuer, audience and expiration.
 - Database-backed active-user and admin authorization dependencies.
 - Auth API integration check script.
+- Redis-backed fixed-window rate limiting for login and registration.
+- Atomic counter updates and expiration using Lua.
+- Retry-After responses for exceeded limits.
 
 ### Verified
 
