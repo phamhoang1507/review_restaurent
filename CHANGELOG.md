@@ -18,6 +18,12 @@
 - Alembic configuration và revision 0001.
 - Database constraints cho user role, email uniqueness và district references.
 - Migration commands và hướng dẫn rollback trong README.
+- Place, Review and ReviewImage SQLAlchemy models.
+- Revision 0002 for places, reviews and review_images.
+- Price/rating constraints and one-review-per-user-per-place uniqueness.
+- Composite indexes for district places and place reviews.
+- Transactional SQL checks for constraints and metadata cascade deletion.
+- Versioned project context in docs/project-state.md.
 
 ### Verified
 
@@ -28,3 +34,9 @@
 - Verified users and districts constraints in PostgreSQL.
 - Alembic detected no schema drift.
 - API readiness remains healthy after migration.
+
+### Fixed
+
+- Added a writable migration override for revision generation.
+- Changed API host port to 8001; internal container port remains 8000.
+- Updated README to match implemented database models and migration workflow.

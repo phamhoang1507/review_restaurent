@@ -1,0 +1,4 @@
+services:
+  api:
+    volumes:
+      - ./migrations:/app/migrations:rw

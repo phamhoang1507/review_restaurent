@@ -4,11 +4,20 @@ from sqlalchemy import create_engine, pool
 from app.core.config import get_settings
 from app.db.base import Base
 from app.modules.locations.models import District, Province
+from app.modules.places.models import Place
+from app.modules.reviews.models import Review, ReviewImage
 from app.modules.users.models import User
 
 target_metadata = Base.metadata
 
-REGISTERED_MODELS = (User, Province, District)
+REGISTERED_MODELS = (
+    User,
+    Province,
+    District,
+    Place,
+    Review,
+    ReviewImage,
+)
 
 
 def run_migrations_offline() -> None:

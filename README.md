@@ -12,7 +12,8 @@ Application name: `LocalSpot`.
 - Dependency versions được cố định bằng uv.lock.
 - Liveness và readiness endpoints.
 - Development bind mount và auto-reload.
-- Chưa triển khai business schema, Auth hoặc upload ảnh.
+- Đã có models và migrations cho users, provinces, districts, places, reviews và review_images.
+- Chưa triển khai Auth, business API hoặc upload ảnh.
 
 ## Requirements
 
@@ -41,7 +42,7 @@ cp .env.example .env
 | POSTGRES_PORT | PostgreSQL internal port |
 | REDIS_URL | Redis connection URL dành cho API trong Docker network |
 
-`POSTGRES_HOST`, `POSTGRES_PORT` và `REDIS_URL` sẽ được API sử dụng ở bước tiếp theo. Port mapping hiện tại được cấu hình trong compose.yaml.
+`POSTGRES_HOST`, `POSTGRES_PORT` và `REDIS_URL` API sử dụng POSTGRES_HOST, POSTGRES_PORT và REDIS_URL để kết nối services bên trong Docker network. Port mapping hiện tại được cấu hình trong compose.yaml.
 
 ## Start services
 
@@ -127,7 +128,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Triển khai places, reviews và review_images cùng migration tiếp theo.
+Design Auth flow, API contracts and authorization before implementation.
 
 ## API development
 
@@ -147,11 +148,11 @@ Commit cả pyproject.toml và uv.lock.
 
 ```bash
 docker compose up -d --build --wait
-curl --fail http://localhost:8000/health/live
-curl --fail http://localhost:8000/health/ready
+curl --fail http://localhost:8001/health/live
+curl --fail http://localhost:8001/health/ready
 ```
 
-Swagger UI: http://localhost:8000/docs
+Swagger UI: http://localhost:8001/docs
 
 APP_NAME cấu hình tên ứng dụng trong OpenAPI.
 
@@ -185,7 +186,7 @@ docker compose logs --tail=100 api
 3. Verify:
 
    ```bash
-   curl --fail http://localhost:8000/health/ready
+   curl --fail http://localhost:8001/health/ready
    docker compose ps
    ```
 
@@ -197,6 +198,9 @@ Các bảng hiện tại:
 - provinces: tỉnh/thành.
 - districts: quận/huyện, tham chiếu provinces.
 - alembic_version: revision do Alembic quản lý.
+- places: địa điểm, khoảng giá và references tới district/user.
+- reviews: một review/user/place, ba rating từ 1 đến 5.
+- review_images: metadata ảnh, cascade khi xóa review.
 
 Áp dụng migrations:
 
@@ -234,3 +238,36 @@ Migrations được chạy bằng lệnh riêng, không tự chạy trong API st
 
 updated_at tự cập nhật khi thao tác qua SQLAlchemy ORM.
 SQL update trực tiếp cần tự đặt updated_at vì chưa có database trigger.
+
+## Database constraint verification
+
+```bash
+docker compose exec -T postgres sh -c \
+  'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
+  < scripts/check_review_constraints.sql
+```
+
+Script kiểm tra invalid price range, duplicate review, invalid rating
+và cascade deletion. Dữ liệu kiểm thử được rollback.
+
+## Project context
+
+Thiết kế, môi trường, tiến độ và các phần chưa triển khai nằm trong
+docs/project-state.md. Cập nhật file này khi hoàn thành mỗi mốc.
+
+## Generate a migration
+
+PostgreSQL phải đang chạy và database phải ở revision head hiện tại
+trước khi sinh migration tiếp theo.
+
+```bash
+docker compose \
+  -f compose.yaml \
+  -f compose.override.yaml \
+  -f compose.migrations.yaml \
+  run --rm --no-deps \
+  --user "$(id -u):$(id -g)" \
+  api alembic revision --autogenerate -m "describe schema change"
+```
+
+Review migration trước khi apply. Không tạo lại revision 0002 đã tồn tại.
