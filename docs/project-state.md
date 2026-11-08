@@ -1,77 +1,112 @@
 # LocalSpot project state
 
-## Working environment
+## Environment
 
 - Repository: ~/chatgpt/review_restaurent
-- Host: Windows, Ubuntu WSL2.
-- Docker CLI in Ubuntu connects to Docker Desktop.
-- Application name: LocalSpot.
-- Guidance and explanations: Vietnamese.
-- Code, identifiers and CLI: English.
+- Windows with Ubuntu WSL2.
+- Ubuntu Docker CLI connects to Docker Desktop.
+- API host URL: http://localhost:8001.
+- API container port: 8000.
+- PostgreSQL host port: 5432.
+- Redis is accessible inside the Docker network.
 
 ## Working agreement
 
-- Agree on design before large implementation steps.
-- Deliver complete files directly in chat for the user to create locally.
-- Update README, configuration examples and CHANGELOG with relevant changes.
-- Debug format: root cause → concrete fix → verification commands.
-- Never request or commit .env contents.
-- Update this document at each completed milestone.
+- Explain in Vietnamese; code and CLI use English.
+- Agree on design before large implementation changes.
+- Deliver files and commands in chat for execution on the user's machine.
+- Specify exact file paths and insertion/replacement locations.
+- Update README, .env.example and CHANGELOG with relevant changes.
+- Verify and commit/push each completed feature.
+- Small fixes may be included in the current feature commit.
+- Never commit .env.
+- Update this document at each milestone.
 
-## Architecture
+## Stack and architecture
 
 - Modular monolith.
-- FastAPI with synchronous SQLAlchemy database access.
-- PostgreSQL 17, Redis 7.4.
-- Python 3.12, uv with committed uv.lock.
-- Alembic controls schema changes; API startup does not run migrations.
-- API container uses a non-root user.
-- compose.override.yaml enables development reload and bind mounts.
+- Python 3.12 and FastAPI.
+- Synchronous SQLAlchemy and psycopg.
+- PostgreSQL 17 and Redis 7.4.
+- uv with committed uv.lock.
+- Alembic migrations run explicitly, not during API startup.
+- API runs as a non-root container user.
+- Development reload and read-only source bind mounts.
+- compose.migrations.yaml enables writable migration generation.
 
-## Implemented foundation
+## Database
 
-- Settings: app/core/config.py.
-- Engine and request session dependency: app/db/session.py.
-- Declarative base and timestamps: app/db/base.py.
-- Health endpoints: app/main.py.
-- GET /health/live checks process availability.
-- GET /health/ready checks PostgreSQL and Redis.
-- Session commits are controlled by business services.
+- 0001: users, provinces, districts.
+- 0002: places, reviews, review_images.
+- 0003: auth_sessions.
+- User email has a unique index on lower(email).
+- Login queries use the same lower(email) expression.
+- One review per user/place.
+- Three mandatory ratings from 1 to 5.
+- Prices are integer VND with database constraints.
+- Review deletion cascades image metadata only.
 - updated_at uses SQLAlchemy onupdate, not a database trigger.
+- Default list pagination will use created_at and id.
+- Aggregate ratings are not persisted yet.
 
-## Database decisions
+## Auth implementation
 
-- IDs: BIGINT IDENTITY.
-- Users: role user/admin, unique index on lower(email).
-- Districts: unique(province_id, name).
-- Places: admin-managed, VND integer price range, is_active for closure.
-- Reviews: unique(user_id, place_id); users can edit/delete their review.
-- Three mandatory integer ratings from 1 to 5.
-- No persisted overall rating or aggregate counters yet.
-- Review images: unique storage_key and unique(review_id, position).
-- Deleting a review cascades image metadata deletion only.
-- Other implemented foreign keys restrict parent deletion.
-- Default pagination will use created_at and id.
-- File cleanup requires separate retryable processing.
-- Maximum 5 images/review will require transaction and row locking.
+- Argon2id password hashing.
+- JWT access tokens with issuer, audience and expiration validation.
+- User and active status loaded from the database.
+- require_admin dependency exists.
+- Opaque refresh tokens; database stores SHA-256 hashes.
+- Refresh rotation uses transactions and row locks.
+- Reuse of a revoked token revokes the session family.
+- Refresh family has an absolute lifetime from login.
+- Logout revokes the current family and deletes its cookie.
+- Issued access tokens remain valid until expiry after logout.
+- Refresh cookie: HttpOnly, SameSite=Lax, path /api/v1/auth.
+- Cookie expiration is normalized to datetime.UTC.
+- Login, refresh and logout require a trusted Origin.
+- Redis fixed-window rate limits protect Auth endpoints.
+- Clients sharing an IP share the same endpoint quota.
 
-## Verification status
+## Endpoints
 
-- Foundation: verified healthy on the user's WSL2 machine.
-- Revision 0001: applied; alembic check reported no schema drift.
-- Revision 0002: applied; alembic check reported no schema drift.
-- Constraint checks: four checks passed; test data rolled back.
-- API host endpoint: http://localhost:8001.
+- GET /health/live
+- GET /health/ready
+- POST /api/v1/auth/register
+- POST /api/v1/auth/login
+- POST /api/v1/auth/refresh
+- POST /api/v1/auth/logout
+- GET /api/v1/users/me
+
+## Verification
+
+- Revisions 0001 and 0002 were verified on the user's machine.
+- Database constraint verification script is available.
+- Auth integration script expects 13 PASS messages.
+- Revision 0003 is current; Alembic reports no schema drift.
+- Reviewed Auth flows passed all 13 local integration checks.
+- Auth script creates persistent local test users and prints their credentials.
 
 ## Not implemented yet
 
-- Auth, password hashing, sessions/tokens and authorization.
-- Business API routes and Pydantic request/response schemas.
-- Object storage, image processing and upload.
+- Admin account CLI.
+- Places and Reviews API.
+- Frontend and CORS middleware.
+- Object storage, image validation, compression and upload.
 - Search, pg_trgm and cursor pagination.
-- Production deployment, TLS, backup and CI.
+- Session retention and cleanup.
+- CI/CD and production deployment.
+- Production TLS, secrets management, backup and restore verification.
+- Broader automated tests, including concurrent refresh scenarios.
+
+## Git and Docker versions
+
+- Auth foundation, basic endpoints and initial rate limiting have separate commits.
+- Refresh/logout and related fixes are the current pending feature commit.
+- Docker release tags must identify a specific clean Git revision.
+- Do not overwrite published release tags.
+- v0.3.0-auth-complete has not been approved for publication yet.
 
 ## Current step
 
-Auth endpoint rate limiting verified locally.
-Next: refresh-token rotation, logout and CSRF protection.
+Apply review corrections, run verification, then commit/push refresh/logout.
+Next: Admin account CLI and Places CRUD.

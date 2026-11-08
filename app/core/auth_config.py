@@ -26,6 +26,12 @@ class AuthSettings(BaseSettings):
     login_rate_limit: int = Field(default=10, ge=1, le=1000)
     register_rate_limit: int = Field(default=5, ge=1, le=1000)
 
+    refresh_rate_limit: int = Field(default=30, ge=1, le=1000)
+
+    auth_allowed_origins: list[str] = [
+        "http://localhost:8001",
+        "http://localhost:5173",
+    ]
 
 @lru_cache
 def get_auth_settings() -> AuthSettings:

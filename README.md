@@ -13,7 +13,9 @@ Application name: `LocalSpot`.
 - Liveness và readiness endpoints.
 - Development bind mount và auto-reload.
 - Đã có models và migrations cho users, provinces, districts, places, reviews và review_images.
-- Chưa triển khai Auth, business API hoặc upload ảnh.
+- Đã triển khai register, login, current user, refresh rotation và logout.
+- Đã có Auth rate limiting, Origin validation và dependency phân quyền.
+- Chưa triển khai Places/Reviews API, upload ảnh hoặc frontend.
 
 ## Requirements
 
@@ -21,13 +23,41 @@ Application name: `LocalSpot`.
 - Docker Desktop đang chạy và bật WSL Integration.
 - Docker Compose hỗ trợ `up --wait`.
 - Host port 5432 còn trống.
+- Host port 8001 còn trống.
 
 Chạy các lệnh trong thư mục gốc repository.
 
 ## Environment configuration
 
 ```bash
-cp .env.example .env
+python3 - <<'PY'
+from pathlib import Path
+import secrets
+import shutil
+
+path = Path(".env")
+
+if not path.exists():
+    shutil.copyfile(".env.example", path)
+
+lines = path.read_text().splitlines()
+found = False
+
+for index, line in enumerate(lines):
+    key, separator, value = line.partition("=")
+
+    if separator and key.strip() == "JWT_SECRET_KEY":
+        found = True
+
+        if value.strip() in {"", '""', "''"}:
+            lines[index] = f"JWT_SECRET_KEY={secrets.token_hex(32)}"
+
+if not found:
+    lines.append(f"JWT_SECRET_KEY={secrets.token_hex(32)}")
+
+path.write_text("\n".join(lines) + "\n")
+print("Local environment ready; existing non-empty JWT secret preserved.")
+PY
 ```
 
 `.env` không được commit. Credentials mẫu chỉ dùng cho local development.
@@ -41,8 +71,22 @@ cp .env.example .env
 | POSTGRES_HOST | Hostname dành cho API bên trong Docker network |
 | POSTGRES_PORT | PostgreSQL internal port |
 | REDIS_URL | Redis connection URL dành cho API trong Docker network |
+| APP_NAME | Tên ứng dụng trong OpenAPI |
+| JWT_SECRET_KEY | Secret ký JWT, tối thiểu 32 ký tự |
+| JWT_ALGORITHM | Thuật toán ký, hiện chỉ hỗ trợ HS256 |
+| JWT_ISSUER / JWT_AUDIENCE | Issuer và audience của access token |
+| ACCESS_TOKEN_MINUTES | Thời hạn access token, mặc định 15 phút |
+| REFRESH_TOKEN_DAYS | Thời hạn tuyệt đối của refresh family, mặc định 7 ngày |
+| REFRESH_COOKIE_NAME | Tên refresh cookie |
+| REFRESH_COOKIE_SECURE | false cho local HTTP, true cho HTTPS |
+| AUTH_ALLOWED_ORIGINS | JSON array các Origin được phép cho login/refresh/logout |
+| AUTH_RATE_WINDOW_SECONDS | Độ dài cửa sổ rate limit |
+| LOGIN_RATE_LIMIT | Login requests/IP/window |
+| REGISTER_RATE_LIMIT | Register requests/IP/window |
+| REFRESH_RATE_LIMIT | Giới hạn riêng cho từng endpoint refresh và logout |
 
-`POSTGRES_HOST`, `POSTGRES_PORT` và `REDIS_URL` API sử dụng POSTGRES_HOST, POSTGRES_PORT và REDIS_URL để kết nối services bên trong Docker network. Port mapping hiện tại được cấu hình trong compose.yaml.
+API sử dụng POSTGRES_HOST, POSTGRES_PORT và REDIS_URL để kết nối services
+bên trong Docker network. Host port mapping nằm trong compose.yaml.
 
 ## Start services
 
@@ -128,7 +172,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Design Auth flow, API contracts and authorization before implementation.
+Add an Admin account CLI, Places CRUD and frontend CORS configuration.
 
 ## API development
 
@@ -201,6 +245,7 @@ Các bảng hiện tại:
 - places: địa điểm, khoảng giá và references tới district/user.
 - reviews: một review/user/place, ba rating từ 1 đến 5.
 - review_images: metadata ảnh, cascade khi xóa review.
+- auth_sessions: refresh-token hashes, expiration và session families.
 
 Áp dụng migrations:
 
@@ -229,6 +274,8 @@ Rollback một revision:
 ```bash
 docker compose exec api alembic downgrade -1
 ```
+downgrade -1 rollback revision gần nhất. Nếu database đang ở 0003,
+lệnh này xóa auth_sessions cùng dữ liệu phiên đăng nhập.
 
 Rollback migration đầu tiên sẽ xóa users, provinces và districts cùng dữ liệu.
 Chỉ thực hiện trên database local dùng để kiểm thử hoặc theo kế hoạch migration
@@ -270,7 +317,7 @@ docker compose \
   api alembic revision --autogenerate -m "describe schema change"
 ```
 
-Review migration trước khi apply. Không tạo lại revision 0002 đã tồn tại.
+Review migration trước khi apply. Không tạo lại các revision 0001, 0002 hoặc 0003 đã tồn tại.
 
 ## Auth foundation
 
@@ -288,16 +335,34 @@ Review migration trước khi apply. Không tạo lại revision 0002 đã tồn
 - POST /api/v1/auth/register: tạo user, không cho client chọn role.
 - POST /api/v1/auth/login: trả JWT access token.
 - GET /api/v1/users/me: yêu cầu Bearer access token.
+- POST /api/v1/auth/refresh: rotate refresh cookie và cấp access token mới.
+- POST /api/v1/auth/logout: revoke session family và xóa refresh cookie.
 - Password đăng ký: 12–128 ký tự.
 - Email được normalize về lowercase trước khi lưu và lookup.
-- Refresh rotation, logout và rate limiting chưa được triển khai.
-- Chỉ chạy local; hoàn tất rate limiting trước khi mở Auth ra public.
 
 Verification: python3 scripts/check_auth.py
 scripts/check_auth.py prints the generated local test account credentials.
 These credentials are for local testing only.
 
 Script tạo và giữ lại một user test ngẫu nhiên trong database local.
+
+## Refresh sessions and CSRF
+
+- Login, refresh và logout yêu cầu Origin khớp AUTH_ALLOWED_ORIGINS.
+- Đây là kiểm tra CSRF; CORS cho frontend sẽ cấu hình riêng.
+- Refresh token được lưu trong HttpOnly, SameSite=Lax cookie.
+- Cookie path: /api/v1/auth.
+- Database chỉ lưu SHA-256 hash của refresh token.
+- Rotation giữ nguyên thời hạn tuyệt đối 7 ngày từ login.
+- Dùng lại token đã revoke sẽ revoke toàn bộ session family.
+- Frontend phải tránh gửi nhiều refresh requests đồng thời.
+- Logout không vô hiệu hóa access token đã phát hành; token hết hạn tối đa sau 15 phút.
+- Refresh/logout có rate limit riêng theo REFRESH_RATE_LIMIT.
+- Production HTTPS phải bật REFRESH_COOKIE_SECURE=true.
+- Old session records cần retention/cleanup trước khi vận hành production.
+
+Local verification: python3 scripts/check_auth.py
+Expected: 13 PASS messages.
 
 ## Auth rate limits
 

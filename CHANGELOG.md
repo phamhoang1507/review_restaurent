@@ -35,6 +35,11 @@
 - Redis-backed fixed-window rate limiting for login and registration.
 - Atomic counter updates and expiration using Lua.
 - Retry-After responses for exceeded limits.
+- Refresh-token rotation with transactional session locking.
+- Refresh-token reuse detection and session-family revocation.
+- Logout with refresh-cookie deletion.
+- Trusted-Origin checks for cookie-based authentication flows.
+- Refresh/logout rate limits and expanded Auth integration checks.
 
 ### Verified
 
@@ -45,9 +50,16 @@
 - Verified users and districts constraints in PostgreSQL.
 - Alembic detected no schema drift.
 - API readiness remains healthy after migration.
+- Revision 0003 is current with no schema drift.
+- Auth integration script completed all 13 checks.
 
 ### Fixed
 
 - Added a writable migration override for revision generation.
 - Changed API host port to 8001; internal container port remains 8000.
 - Updated README to match implemented database models and migration workflow.
+- Normalize refresh-cookie expiration to datetime.UTC before HTTP date formatting.
+- Improve Auth verification script errors for non-JSON responses and rate limits.
+- Match the login email lookup to the lower(email) functional index.
+- Document safe local JWT secret initialization.
+- Synchronize README and project state with implemented Auth flows.

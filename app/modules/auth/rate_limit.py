@@ -69,3 +69,18 @@ def limit_registration(request: Request) -> None:
         scope="register",
         limit=get_auth_settings().register_rate_limit,
     )
+
+def limit_refresh(request: Request) -> None:
+    enforce_rate_limit(
+        request,
+        scope="refresh",
+        limit=get_auth_settings().refresh_rate_limit,
+    )
+
+
+def limit_logout(request: Request) -> None:
+    enforce_rate_limit(
+        request,
+        scope="logout",
+        limit=get_auth_settings().refresh_rate_limit,
+    )

@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -51,7 +51,7 @@ def register_user(session: Session, data: RegisterRequest) -> User:
 def authenticate_user(session: Session, data: LoginRequest) -> User:
     user = session.scalar(
         select(User).where(
-            User.email == normalize_email(str(data.email)),
+            func.lower(User.email) == normalize_email(str(data.email)),
         )
     )
 
