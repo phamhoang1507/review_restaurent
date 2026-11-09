@@ -58,6 +58,9 @@
 - Minimum-rating filtering combined with existing district and price filters.
 - Revision 0004 with pg_trgm and a GIN index on place names.
 - Search, combined-filter and cursor-pagination integration checks.
+- Private S3-compatible storage with a pinned local MinIO source build.
+- Dedicated private-bucket bootstrap and storage readiness check.
+- Persistent storage verification script.
 
 ### Verified
 
@@ -82,3 +85,4 @@
 - Document safe local JWT secret initialization.
 - Synchronize README and project state with implemented Auth flows.
 - Recreated the local PostgreSQL container with its configured host port mapping for DBeaver access.
+- Close boto3 clients using contextlib.closing in storage bootstrap.

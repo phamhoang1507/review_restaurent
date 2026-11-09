@@ -15,7 +15,9 @@ Application name: `LocalSpot`.
 - Đã có models và migrations cho users, provinces, districts, places, reviews và review_images.
 - Đã triển khai register, login, current user, refresh rotation và logout.
 - Đã có Auth rate limiting, Origin validation và dependency phân quyền.
-- Chưa triển khai Places/Reviews API, upload ảnh hoặc frontend.
+- Đã triển khai Places/Reviews API, rating aggregates và search/filter.
+- Đã thêm private object storage và bucket bootstrap.
+- Chưa triển khai image upload API hoặc frontend.
 
 ## Requirements
 
@@ -24,6 +26,7 @@ Application name: `LocalSpot`.
 - Docker Compose hỗ trợ `up --wait`.
 - Host port 5432 còn trống.
 - Host port 8001 còn trống.
+- Host ports 9000 và 9001 còn trống.
 
 Chạy các lệnh trong thư mục gốc repository.
 
@@ -207,7 +210,7 @@ Khi thay đổi dependencies, tạo lại lockfile và build lại API image.
 ## Health endpoints
 
 - GET /health/live: trả 200 khi API process xử lý request được.
-- GET /health/ready: kiểm tra PostgreSQL và Redis, trả 503 nếu dependency lỗi.
+- GET /health/ready: kiểm tra PostgreSQL, Redis và storage bucket; trả 503 nếu dependency lỗi.
 
 ## API logs
 
@@ -318,7 +321,7 @@ docker compose \
   api alembic revision --autogenerate -m "describe schema change"
 ```
 
-Review migration trước khi apply. Không tạo lại các revision 0001, 0002 hoặc 0003 đã tồn tại.
+Không tạo lại các revision 0001–0004 đã tồn tại.
 
 ## Auth foundation
 
@@ -529,6 +532,55 @@ The migration user requires permission to install the extension.
 
 Small datasets may legitimately use sequential scans.
 Evaluate search and aggregate filtering with EXPLAIN ANALYZE on realistic data.
+
+## Private object storage
+
+- S3 API: http://localhost:9000.
+- Console: http://localhost:9001.
+- Container endpoint: http://minio:9000.
+- Browser endpoint: S3_PUBLIC_ENDPOINT_URL.
+- Dedicated private bucket: S3_BUCKET.
+- Presigned URL lifetime: S3_PRESIGNED_TTL_SECONDS, default 300 seconds.
+- Credentials: S3_ACCESS_KEY and S3_SECRET_KEY.
+- Signing region: S3_REGION, default us-east-1.
+- Never replace a URL's hostname after signing it.
+- Bootstrap removes anonymous policies from the dedicated LocalSpot bucket.
+- Local development uses MinIO root credentials.
+- Deployment requires a separate least-privilege application identity.
+
+MinIO is built from RELEASE.2025-10-15T17-29-55Z
+using docker/minio/Dockerfile.
+
+Build with docker compose build minio.
+Do not pull the local image tag.
+
+The upstream Community repository is no longer maintained.
+This dependency is for local development; deployment storage is not finalized.
+
+storage-init is a one-shot job. Exited (0) is expected.
+It uses the application image, so source changes require rebuilding storage-init.
+
+Rebuild application images:
+
+```bash
+docker compose build api storage-init
+```
+
+Verify storage:
+
+```bash
+docker compose exec -T api python < scripts/check_storage.py
+```
+
+Expected: 6 PASS messages.
+
+The check creates and deletes one temporary object.
+It also reapplies the dedicated bucket's private-policy configuration.
+
+Data is stored in minio_data.
+docker compose down preserves it; down -v deletes it.
+
+Image upload endpoints are not implemented yet.
 
 ## Docker Hub
 

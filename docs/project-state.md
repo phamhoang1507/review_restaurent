@@ -96,14 +96,14 @@
 - Revisions 0001 and 0002 were verified on the user's machine.
 - Database constraint verification script is available.
 - Auth integration script expects 13 PASS messages.
-- Revision 0003 is current; Alembic reports no schema drift.
+- Migration head is 0004; schema drift verification uses alembic check.
 - Reviewed Auth flows passed all 13 local integration checks.
 - Auth script creates persistent local test users and prints their credentials.
 
 ## Not implemented yet
 
 - Frontend.
-- Object storage, image validation, compression and upload.
+- Image validation, compression, upload endpoints and reliable object cleanup.
 - Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.
@@ -113,7 +113,8 @@
 ## Git and Docker versions
 
 - Auth foundation, basic endpoints and initial rate limiting have separate commits.
-- Refresh/logout and related fixes are the current pending feature commit.
+- Auth, Places, Reviews and Search have been committed.
+- Private storage foundation is the current pending feature commit.
 - Docker release tags must identify a specific clean Git revision.
 - Do not overwrite published release tags.
 - v0.3.0-auth-complete published for the Auth/Admin/CORS milestone.
@@ -121,7 +122,8 @@
 
 ## Current step
 
-Place search and combined district/price/rating filters verified locally.
-Name search uses pg_trgm; pagination remains created_at/id based.
-Rating filters use the unrounded aggregate and exclude unrated places.
-Next: private image storage and secure image uploads, then frontend.
+Storage source includes the boto3 closing() fix.
+MinIO is built locally from RELEASE.2025-10-15T17-29-55Z.
+Local Compose startup and all 6 storage checks passed.
+
+Next: image validation, WebP conversion, upload endpoints and cleanup.
