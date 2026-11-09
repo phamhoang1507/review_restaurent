@@ -28,7 +28,6 @@ router = APIRouter(
     tags=["places"],
 )
 
-
 @router.get("", response_model=PlaceListResponse)
 def list_places(
     session: Annotated[Session, Depends(get_session)],
@@ -46,6 +45,14 @@ def list_places(
         int | None,
         Query(ge=0, le=MAX_INTEGER),
     ] = None,
+    q: Annotated[
+        str | None,
+        Query(min_length=1, max_length=200),
+    ] = None,
+    min_rating: Annotated[
+        float | None,
+        Query(ge=0, le=5),
+    ] = None,
 ) -> PlaceListResponse:
     return list_public_places(
         session,
@@ -54,8 +61,9 @@ def list_places(
         district_id=district_id,
         min_price=min_price,
         max_price=max_price,
+        q=q,
+        min_rating=min_rating,
     )
-
 
 @router.get("/{place_id}", response_model=PlaceResponse)
 def read_place(

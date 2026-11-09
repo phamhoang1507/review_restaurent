@@ -172,7 +172,8 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Implement search and rating filters, then secure image uploads and frontend.
+Implement private image storage, validated image uploads and cleanup,
+then build the web frontend.
 
 ## API development
 
@@ -461,7 +462,15 @@ Admin PATCH with {"is_active": true} restores a place.
 Place responses include rating and review_count.
 A place without reviews returns rating=null and review_count=0.
 Rating is calculated from original criterion scores and rounded to two decimals.
-Search by name and rating filters are not implemented yet.
+Search and filters:
+
+- q: case-insensitive name substring, maximum 200 characters.
+- Percent and underscore in q are treated as literal characters.
+- Accent-insensitive search is not implemented.
+- min_rating: 0–5, compared against the unrounded average.
+- Places without reviews are excluded when min_rating is provided.
+- Name search uses a pg_trgm GIN index.
+- Keep all filters unchanged when following next_cursor.
 
 Verification:
 
@@ -505,6 +514,21 @@ python3 scripts/check_reviews.py
 ```
 
 The script retains two test users and one inactive place.
+
+## Search verification
+
+```bash
+python3 scripts/check_search.py
+```
+
+The script requires an Admin account and an existing district ID.
+It retains three inactive places, two reviews and one test user.
+
+Revision 0004 creates pg_trgm if absent and adds ix_places_name_trgm.
+The migration user requires permission to install the extension.
+
+Small datasets may legitimately use sequential scans.
+Evaluate search and aggregate filtering with EXPLAIN ANALYZE on realistic data.
 
 ## Docker Hub
 

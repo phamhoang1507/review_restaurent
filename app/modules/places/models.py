@@ -82,4 +82,10 @@ class Place(TimestampMixin, Base):
             text("created_at DESC"),
             text("id DESC"),
         ),
+        Index(
+            "ix_places_name_trgm",
+            "name",
+            postgresql_using="gin",
+            postgresql_ops={"name": "gin_trgm_ops"},
+        ),
     )

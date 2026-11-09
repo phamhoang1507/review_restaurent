@@ -39,6 +39,7 @@
 - 0001: users, provinces, districts.
 - 0002: places, reviews, review_images.
 - 0003: auth_sessions.
+- 0004: pg_trgm extension and ix_places_name_trgm GIN index.
 - User email has a unique index on lower(email).
 - Login queries use the same lower(email) expression.
 - One review per user/place.
@@ -103,7 +104,7 @@
 
 - Frontend.
 - Object storage, image validation, compression and upload.
-- Search, pg_trgm and cursor pagination.
+- Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.
 - Production TLS, secrets management, backup and restore verification.
@@ -120,6 +121,7 @@
 
 ## Current step
 
-Reviews CRUD, ownership rules, Admin deletion and rating aggregates verified.
-Places pages load rating aggregates in one bulk query per page.
-Next: search/rating filters and secure image upload.
+Place search and combined district/price/rating filters verified locally.
+Name search uses pg_trgm; pagination remains created_at/id based.
+Rating filters use the unrounded aggregate and exclude unrated places.
+Next: private image storage and secure image uploads, then frontend.

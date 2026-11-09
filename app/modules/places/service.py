@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy import and_, or_, select
+from sqlalchemy import Numeric, and_, cast, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -13,6 +13,7 @@ from app.modules.places.schemas import (
     PlaceUpdate,
 )
 from app.modules.reviews.ratings import get_place_ratings
+from app.modules.reviews.models import Review
 
 def serialize_place(
     session: Session,
@@ -97,6 +98,8 @@ def list_public_places(
     district_id: int | None,
     min_price: int | None,
     max_price: int | None,
+    q: str | None,
+    min_rating: float | None,
 ) -> PlaceListResponse:
     if (
         min_price is not None
@@ -108,16 +111,78 @@ def list_public_places(
             detail="min_price must not exceed max_price",
         )
 
-    statement = select(Place).where(Place.is_active.is_(True))
+    statement = select(Place).where(
+        Place.is_active.is_(True),
+    )
 
     if district_id is not None:
-        statement = statement.where(Place.district_id == district_id)
+        statement = statement.where(
+            Place.district_id == district_id,
+        )
 
     if min_price is not None:
-        statement = statement.where(Place.max_price >= min_price)
+        statement = statement.where(
+            Place.max_price >= min_price,
+        )
 
     if max_price is not None:
-        statement = statement.where(Place.min_price <= max_price)
+        statement = statement.where(
+            Place.min_price <= max_price,
+        )
+
+    if q is not None:
+        keyword = q.strip()
+
+        if not keyword:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Search query cannot be blank",
+            )
+
+        escaped_keyword = (
+            keyword
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_")
+        )
+
+        statement = statement.where(
+            Place.name.ilike(
+                f"%{escaped_keyword}%",
+                escape="\\",
+            )
+        )
+
+    if min_rating is not None:
+        rating_totals = (
+            select(
+                Review.place_id.label("place_id"),
+                (
+                    cast(
+                        func.sum(
+                            Review.space_rating
+                            + Review.food_drink_rating
+                            + Review.value_rating
+                        ),
+                        Numeric,
+                    )
+                    / func.nullif(func.count(Review.id) * 3, 0)
+                ).label("raw_rating"),
+            )
+            .group_by(Review.place_id)
+            .subquery()
+        )
+
+        statement = (
+            statement
+            .join(
+                rating_totals,
+                rating_totals.c.place_id == Place.id,
+            )
+            .where(
+                rating_totals.c.raw_rating >= min_rating,
+            )
+        )
 
     if cursor:
         position = decode_cursor(cursor)
