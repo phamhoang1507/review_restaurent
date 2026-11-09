@@ -172,7 +172,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Implement Admin-managed Places CRUD and public location lookup endpoints.
+Implement Reviews CRUD and rating aggregates, then search and image uploads.
 
 ## API development
 
@@ -428,6 +428,46 @@ docker compose exec -T postgres sh -c \
 
 The fixture contains fictional demo locations.
 It is not an official administrative dataset.
+
+## Places API
+
+Public:
+
+- GET /api/v1/places
+- GET /api/v1/places/{place_id}
+
+Admin:
+
+- POST /api/v1/places
+- PATCH /api/v1/places/{place_id}
+- DELETE /api/v1/places/{place_id}
+
+List parameters:
+
+- limit: default 20, maximum 100.
+- cursor: use next_cursor from the previous response.
+- district_id: filter by district.
+- min_price/max_price: inclusive overlapping price-range filter.
+
+Order: created_at DESC, id DESC.
+
+Keep filters unchanged while following next_cursor.
+Pagination is not a database snapshot; concurrent edits can change results.
+
+DELETE sets is_active=false and preserves database history.
+Public endpoints hide inactive places.
+Admin PATCH with {"is_active": true} restores a place.
+
+Search by name, rating filters and rating aggregates are not implemented yet.
+
+Verification:
+
+```bash
+python3 scripts/check_places.py
+```
+
+The script requires an Admin account and an existing district ID.
+It retains a test user and an inactive test place in the local database.
 
 ## Docker Hub
 

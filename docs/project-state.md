@@ -80,6 +80,11 @@
 - GET /api/v1/users/me
 - GET /api/v1/locations/provinces
 - GET /api/v1/locations/provinces/{province_id}/districts
+- GET /api/v1/places
+- GET /api/v1/places/{place_id}
+- POST /api/v1/places — Admin
+- PATCH /api/v1/places/{place_id} — Admin
+- DELETE /api/v1/places/{place_id} — Admin soft delete
 
 ## Verification
 
@@ -92,7 +97,7 @@
 
 ## Not implemented yet
 
-- Places and Reviews API.
+- Reviews API and rating aggregates.
 - Frontend.
 - Object storage, image validation, compression and upload.
 - Search, pg_trgm and cursor pagination.
@@ -112,5 +117,6 @@
 
 ## Current step
 
-Public location lookups and demo location fixture verified locally.
-Next: Admin-managed Places CRUD using existing district IDs.
+Places CRUD, authorization and lifecycle checks verified locally.
+Public listing supports district/price filters and created_at/id cursors.
+Next: Reviews CRUD and rating aggregates.

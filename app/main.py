@@ -14,6 +14,7 @@ from app.core.auth_config import get_auth_settings
 from app.modules.auth.router import router as auth_router
 from app.modules.users.router import router as users_router
 from app.modules.locations.router import router as locations_router
+from app.modules.places.router import router as places_router
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(locations_router, prefix="/api/v1")
-
+app.include_router(places_router, prefix="/api/v1")
 
 def check_postgres() -> None:
     with engine.connect() as connection:

@@ -45,6 +45,10 @@
 - Credentialed CORS configuration for allowed frontend origins.
 - Public province and district lookup endpoints with bounded pagination.
 - Repeatable local demo location fixture.
+- Admin-managed Places create/update/deactivate/restore operations.
+- Public place detail and cursor-paginated listing.
+- District and overlapping price-range filters.
+- Places authorization and lifecycle integration checks.
 
 ### Verified
 
