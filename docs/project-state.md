@@ -66,6 +66,8 @@
 - Login, refresh and logout require a trusted Origin.
 - Redis fixed-window rate limits protect Auth endpoints.
 - Clients sharing an IP share the same endpoint quota.
+- Admin creation CLI: python -m app.cli create-admin.
+- CORS uses the same explicit origin allowlist as Auth Origin validation.
 
 ## Endpoints
 
@@ -88,9 +90,8 @@
 
 ## Not implemented yet
 
-- Admin account CLI.
 - Places and Reviews API.
-- Frontend and CORS middleware.
+- Frontend.
 - Object storage, image validation, compression and upload.
 - Search, pg_trgm and cursor pagination.
 - Session retention and cleanup.
@@ -108,5 +109,6 @@
 
 ## Current step
 
-Apply review corrections, run verification, then commit/push refresh/logout.
-Next: Admin account CLI and Places CRUD.
+Core Auth, Admin creation CLI and frontend CORS are implemented.
+Admin creation and CORS preflight checks verified locally.
+Next: Admin-managed Places CRUD and public location lookups.

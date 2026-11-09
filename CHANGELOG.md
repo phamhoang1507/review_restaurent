@@ -40,6 +40,9 @@
 - Logout with refresh-cookie deletion.
 - Trusted-Origin checks for cookie-based authentication flows.
 - Refresh/logout rate limits and expanded Auth integration checks.
+- Interactive CLI for creating new Admin accounts.
+- Duplicate-account protection without implicit privilege escalation.
+- Credentialed CORS configuration for allowed frontend origins.
 
 ### Verified
 

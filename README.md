@@ -79,7 +79,7 @@ PY
 | REFRESH_TOKEN_DAYS | Thời hạn tuyệt đối của refresh family, mặc định 7 ngày |
 | REFRESH_COOKIE_NAME | Tên refresh cookie |
 | REFRESH_COOKIE_SECURE | false cho local HTTP, true cho HTTPS |
-| AUTH_ALLOWED_ORIGINS | JSON array các Origin được phép cho login/refresh/logout |
+| AUTH_ALLOWED_ORIGINS | JSON array dùng cho CORS và trusted-Origin validation của Auth |
 | AUTH_RATE_WINDOW_SECONDS | Độ dài cửa sổ rate limit |
 | LOGIN_RATE_LIMIT | Login requests/IP/window |
 | REGISTER_RATE_LIMIT | Register requests/IP/window |
@@ -172,7 +172,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Add an Admin account CLI, Places CRUD and frontend CORS configuration.
+Implement Admin-managed Places CRUD and public location lookup endpoints.
 
 ## API development
 
@@ -349,7 +349,8 @@ Script tạo và giữ lại một user test ngẫu nhiên trong database local.
 ## Refresh sessions and CSRF
 
 - Login, refresh và logout yêu cầu Origin khớp AUTH_ALLOWED_ORIGINS.
-- Đây là kiểm tra CSRF; CORS cho frontend sẽ cấu hình riêng.
+- CORS và CSRF Origin validation dùng chung AUTH_ALLOWED_ORIGINS.
+- CORS cho phép credentialed requests từ các origin cụ thể.
 - Refresh token được lưu trong HttpOnly, SameSite=Lax cookie.
 - Cookie path: /api/v1/auth.
 - Database chỉ lưu SHA-256 hash của refresh token.
@@ -374,6 +375,34 @@ Expected: 13 PASS messages.
 - Redis failure returns 503 for these Auth endpoints.
 - Clients sharing an IP share the same endpoint quota.
 - Reverse-proxy client IP handling must be configured at deployment.
+
+## Create an Admin
+
+```bash
+docker compose exec api \
+  python -m app.cli create-admin \
+  --email admin@example.com \
+  --display-name "LocalSpot Admin"
+```
+
+Password được nhập tương tác, không hiển thị trên terminal.
+
+CLI chỉ tạo tài khoản mới. Email đã tồn tại sẽ bị từ chối;
+không tự nâng quyền hoặc đổi password.
+
+Password phải dài 12–128 ký tự.
+
+## Frontend integration
+
+- Frontend development origin: http://localhost:5173.
+- API base URL: http://localhost:8001/api/v1.
+- CORS uses AUTH_ALLOWED_ORIGINS.
+- Login, refresh and logout requests use credentials: "include".
+- Store the access token in frontend memory.
+- Send the access token through the Authorization Bearer header.
+- Coordinate concurrent requests so only one refresh runs at a time.
+
+Use localhost consistently for frontend and API in local development.
 
 ## Docker Hub
 
