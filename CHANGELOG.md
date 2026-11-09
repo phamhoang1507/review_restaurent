@@ -49,6 +49,11 @@
 - Public place detail and cursor-paginated listing.
 - District and overlapping price-range filters.
 - Places authorization and lifecycle integration checks.
+- Reviews CRUD with owner authorization and Admin deletion.
+- Cursor-paginated public reviews with author display names.
+- Dynamic place rating aggregates without stored counters.
+- Bulk rating lookup for Places pages.
+- Review lifecycle and aggregate verification script.
 
 ### Verified
 

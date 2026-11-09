@@ -85,6 +85,10 @@
 - POST /api/v1/places — Admin
 - PATCH /api/v1/places/{place_id} — Admin
 - DELETE /api/v1/places/{place_id} — Admin soft delete
+- GET /api/v1/places/{place_id}/reviews
+- POST /api/v1/places/{place_id}/reviews
+- PATCH /api/v1/reviews/{review_id}
+- DELETE /api/v1/reviews/{review_id}
 
 ## Verification
 
@@ -97,7 +101,6 @@
 
 ## Not implemented yet
 
-- Reviews API and rating aggregates.
 - Frontend.
 - Object storage, image validation, compression and upload.
 - Search, pg_trgm and cursor pagination.
@@ -117,6 +120,6 @@
 
 ## Current step
 
-Places CRUD, authorization and lifecycle checks verified locally.
-Public listing supports district/price filters and created_at/id cursors.
-Next: Reviews CRUD and rating aggregates.
+Reviews CRUD, ownership rules, Admin deletion and rating aggregates verified.
+Places pages load rating aggregates in one bulk query per page.
+Next: search/rating filters and secure image upload.

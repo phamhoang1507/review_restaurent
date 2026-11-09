@@ -91,6 +91,8 @@ class PlaceResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    rating: float | None = None
+    review_count: int = 0
 
 
 class PlaceCursor(BaseModel):

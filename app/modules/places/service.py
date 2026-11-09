@@ -12,7 +12,20 @@ from app.modules.places.schemas import (
     PlaceResponse,
     PlaceUpdate,
 )
+from app.modules.reviews.ratings import get_place_ratings
 
+def serialize_place(
+    session: Session,
+    place: Place,
+) -> PlaceResponse:
+    ratings = get_place_ratings(session, [place.id])
+
+    return PlaceResponse.model_validate(place).model_copy(
+        update=ratings.get(
+            place.id,
+            {"rating": None, "review_count": 0},
+        )
+    )
 
 def require_district(session: Session, district_id: int) -> None:
     if session.get(District, district_id) is None:
@@ -128,9 +141,19 @@ def list_public_places(
     has_more = len(rows) > limit
     items = rows[:limit]
 
+    ratings = get_place_ratings(
+        session,
+        [place.id for place in items],
+    )
+
     return PlaceListResponse(
         items=[
-            PlaceResponse.model_validate(place)
+            PlaceResponse.model_validate(place).model_copy(
+                update=ratings.get(
+                    place.id,
+                    {"rating": None, "review_count": 0},
+                )
+            )
             for place in items
         ],
         next_cursor=encode_cursor(items[-1]) if has_more else None,

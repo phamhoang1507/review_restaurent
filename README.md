@@ -172,7 +172,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Implement Reviews CRUD and rating aggregates, then search and image uploads.
+Implement search and rating filters, then secure image uploads and frontend.
 
 ## API development
 
@@ -458,7 +458,10 @@ DELETE sets is_active=false and preserves database history.
 Public endpoints hide inactive places.
 Admin PATCH with {"is_active": true} restores a place.
 
-Search by name, rating filters and rating aggregates are not implemented yet.
+Place responses include rating and review_count.
+A place without reviews returns rating=null and review_count=0.
+Rating is calculated from original criterion scores and rounded to two decimals.
+Search by name and rating filters are not implemented yet.
 
 Verification:
 
@@ -468,6 +471,40 @@ python3 scripts/check_places.py
 
 The script requires an Admin account and an existing district ID.
 It retains a test user and an inactive test place in the local database.
+
+## Reviews API
+
+Public:
+
+- GET /api/v1/places/{place_id}/reviews
+
+Authenticated:
+
+- POST /api/v1/places/{place_id}/reviews
+- PATCH /api/v1/reviews/{review_id}
+- DELETE /api/v1/reviews/{review_id}
+
+Rules:
+
+- One review per user/place; duplicates return 409.
+- Content: 10–5000 characters.
+- Each criterion requires an integer from 1 to 5.
+- Owners can edit their own reviews.
+- Owners and Admins can delete reviews.
+- Admins cannot edit another user's review.
+- Creating/editing reviews requires an active place.
+- Owners/Admins may delete reviews of inactive places.
+- Review listing uses created_at/id cursor pagination.
+- Review deletion cascades image metadata; object cleanup is a separate concern.
+- Image upload is not implemented yet.
+
+Verification:
+
+```bash
+python3 scripts/check_reviews.py
+```
+
+The script retains two test users and one inactive place.
 
 ## Docker Hub
 

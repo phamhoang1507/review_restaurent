@@ -19,6 +19,7 @@ from app.modules.places.service import (
     get_public_place,
     list_public_places,
     update_place,
+    serialize_place,
 )
 from app.modules.users.models import User
 
@@ -62,7 +63,7 @@ def read_place(
     session: Annotated[Session, Depends(get_session)],
 ) -> PlaceResponse:
     place = get_public_place(session, place_id)
-    return PlaceResponse.model_validate(place)
+    return serialize_place(session, place)
 
 
 @router.post(
@@ -76,7 +77,7 @@ def add_place(
     admin: Annotated[User, Depends(require_admin)],
 ) -> PlaceResponse:
     place = create_place(session, data, admin.id)
-    return PlaceResponse.model_validate(place)
+    return serialize_place(session, place)
 
 
 @router.patch(
@@ -90,7 +91,7 @@ def edit_place(
     session: Annotated[Session, Depends(get_session)],
 ) -> PlaceResponse:
     place = update_place(session, place_id, data)
-    return PlaceResponse.model_validate(place)
+    return serialize_place(session, place)
 
 
 @router.delete(
