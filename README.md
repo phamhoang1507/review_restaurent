@@ -404,6 +404,31 @@ Password phải dài 12–128 ký tự.
 
 Use localhost consistently for frontend and API in local development.
 
+## Location lookup API
+
+Public endpoints:
+
+- GET /api/v1/locations/provinces
+- GET /api/v1/locations/provinces/{province_id}/districts
+
+Both endpoints support limit and offset.
+
+- Default limit: 100.
+- Maximum limit: 200.
+- A missing province returns 404.
+- Invalid pagination parameters return 422.
+
+Create local demo locations:
+
+```bash
+docker compose exec -T postgres sh -c \
+  'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
+  < scripts/seed_demo_locations.sql
+```
+
+The fixture contains fictional demo locations.
+It is not an official administrative dataset.
+
 ## Docker Hub
 
 Authenticate with docker login.

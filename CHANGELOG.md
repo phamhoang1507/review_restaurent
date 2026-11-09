@@ -43,6 +43,8 @@
 - Interactive CLI for creating new Admin accounts.
 - Duplicate-account protection without implicit privilege escalation.
 - Credentialed CORS configuration for allowed frontend origins.
+- Public province and district lookup endpoints with bounded pagination.
+- Repeatable local demo location fixture.
 
 ### Verified
 

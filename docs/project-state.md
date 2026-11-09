@@ -78,6 +78,8 @@
 - POST /api/v1/auth/refresh
 - POST /api/v1/auth/logout
 - GET /api/v1/users/me
+- GET /api/v1/locations/provinces
+- GET /api/v1/locations/provinces/{province_id}/districts
 
 ## Verification
 
@@ -105,10 +107,10 @@
 - Refresh/logout and related fixes are the current pending feature commit.
 - Docker release tags must identify a specific clean Git revision.
 - Do not overwrite published release tags.
-- v0.3.0-auth-complete has not been approved for publication yet.
+- v0.3.0-auth-complete published for the Auth/Admin/CORS milestone.
+- Location lookup endpoints belong to the next development milestone.
 
 ## Current step
 
-Core Auth, Admin creation CLI and frontend CORS are implemented.
-Admin creation and CORS preflight checks verified locally.
-Next: Admin-managed Places CRUD and public location lookups.
+Public location lookups and demo location fixture verified locally.
+Next: Admin-managed Places CRUD using existing district IDs.
