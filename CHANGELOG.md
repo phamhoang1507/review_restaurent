@@ -63,3 +63,4 @@
 - Match the login email lookup to the lower(email) functional index.
 - Document safe local JWT secret initialization.
 - Synchronize README and project state with implemented Auth flows.
+- Recreated the local PostgreSQL container with its configured host port mapping for DBeaver access.
