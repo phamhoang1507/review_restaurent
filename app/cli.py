@@ -1,3 +1,4 @@
+from contextlib import closing
 import argparse
 import sys
 from getpass import getpass
@@ -9,6 +10,11 @@ from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password
 from app.db.session import SessionLocal
 from app.modules.users.models import User
+from app.services.storage import create_s3_client
+from app.services.storage_cleanup import (
+    enqueue_stale_pending_uploads,
+    process_storage_deletion_jobs,
+)
 
 
 def create_admin(email: str, display_name: str) -> int:
@@ -92,6 +98,45 @@ def create_admin(email: str, display_name: str) -> int:
     print(f"Admin created: id={admin_id}, email={normalized_email}")
     return 0
 
+def cleanup_storage(limit: int) -> int:
+    with closing(
+        create_s3_client()
+    ) as client, SessionLocal() as session:
+        stale_pending = enqueue_stale_pending_uploads(
+            session,
+            limit=limit,
+        )
+
+        deleted, failed = process_storage_deletion_jobs(
+            session,
+            client,
+            limit=limit,
+        )
+
+    print(
+        "Storage cleanup completed: "
+        f"stale_pending={stale_pending}, "
+        f"deleted={deleted}, failed={failed}"
+    )
+
+    return 1 if failed else 0
+
+
+def cleanup_limit(value: str) -> int:
+    try:
+        limit = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "limit must be an integer"
+        ) from exc
+
+    if not 1 <= limit <= 1000:
+        raise argparse.ArgumentTypeError(
+            "limit must be between 1 and 1000"
+        )
+
+    return limit
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -106,6 +151,18 @@ def main() -> int:
     admin_parser.add_argument("--email", required=True)
     admin_parser.add_argument("--display-name", required=True)
 
+    cleanup_parser = commands.add_parser(
+        "cleanup-storage",
+        help="Retry pending object-storage deletions",
+    )
+
+    cleanup_parser.add_argument(
+        "--limit",
+        type=cleanup_limit,
+        default=100,
+        help="Maximum jobs to process (default: 100)",
+    )
+
     arguments = parser.parse_args()
 
     if arguments.command == "create-admin":
@@ -113,6 +170,9 @@ def main() -> int:
             email=arguments.email,
             display_name=arguments.display_name,
         )
+
+    if arguments.command == "cleanup-storage":
+        return cleanup_storage(arguments.limit)
 
     return 1
 

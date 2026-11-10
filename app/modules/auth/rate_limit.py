@@ -26,24 +26,30 @@ def enforce_rate_limit(
     *,
     scope: str,
     limit: int,
+    identifier: str | None = None,
+    namespace: str = "auth",
+    window_seconds: int | None = None,
+    unavailable_detail: str = "Authentication temporarily unavailable",
 ) -> None:
     settings = get_auth_settings()
     client_host = request.client.host if request.client else "unknown"
-    client_hash = hashlib.sha256(client_host.encode()).hexdigest()
-    key = f"localspot:rate-limit:auth:{scope}:{client_hash}"
+    identity = identifier if identifier is not None else client_host
+    identity_hash = hashlib.sha256(identity.encode()).hexdigest()
+    key = f"localspot:rate-limit:{namespace}:{scope}:{identity_hash}"
+    window = window_seconds or settings.auth_rate_window_seconds
 
     try:
         count, ttl = request.app.state.redis.eval(
             RATE_LIMIT_SCRIPT,
             1,
             key,
-            settings.auth_rate_window_seconds,
+            window,
         )
     except RedisError as exc:
         logger.warning("Auth rate limiter unavailable")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication temporarily unavailable",
+            detail=unavailable_detail,
             headers={"Retry-After": "5"},
         ) from exc
 
@@ -69,6 +75,7 @@ def limit_registration(request: Request) -> None:
         scope="register",
         limit=get_auth_settings().register_rate_limit,
     )
+
 
 def limit_refresh(request: Request) -> None:
     enforce_rate_limit(

@@ -133,6 +133,12 @@ class ReviewImage(Base):
         nullable=False,
     )
 
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        server_default=text("'ready'"),
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -162,7 +168,17 @@ class ReviewImage(Base):
             name="height_positive",
         ),
         CheckConstraint(
-            "position >= 0",
-            name="position_nonnegative",
+            "position BETWEEN 0 AND 4",
+            name="position_range",
+        ),
+        CheckConstraint(
+            "status IN ('pending', 'ready')",
+            name="status_allowed",
+        ),
+        Index(
+            "ix_review_images_pending_created_id",
+            "created_at",
+            "id",
+            postgresql_where=text("status = 'pending'"),
         ),
     )

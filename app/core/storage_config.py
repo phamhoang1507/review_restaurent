@@ -28,6 +28,60 @@ class StorageSettings(BaseSettings):
         le=3600,
     )
 
+    image_upload_max_bytes: int = Field(
+        default=10 * 1024 * 1024,
+        ge=1024,
+        le=50 * 1024 * 1024,
+    )
+
+    image_max_pixels: int = Field(
+        default=20_000_000,
+        ge=1,
+        le=100_000_000,
+    )
+
+    image_max_dimension: int = Field(
+        default=2048,
+        ge=256,
+        le=8192,
+    )
+
+    image_webp_quality: int = Field(
+        default=82,
+        ge=50,
+        le=95,
+    )
+
+    image_upload_rate_limit: int = Field(
+        default=20,
+        ge=1,
+        le=1000,
+    )
+
+    image_upload_rate_window_seconds: int = Field(
+        default=60,
+        ge=1,
+        le=3600,
+    )
+
+    image_processing_concurrency: int = Field(
+        default=2,
+        ge=1,
+        le=16,
+    )
+
+    image_pending_ttl_seconds: int = Field(
+        default=900,
+        ge=60,
+        le=86400,
+    )
+
+    storage_cleanup_interval_seconds: int = Field(
+        default=60,
+        ge=10,
+        le=3600,
+    )
+
 
 @lru_cache
 def get_storage_settings() -> StorageSettings:

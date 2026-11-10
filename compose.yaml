@@ -70,7 +70,24 @@ services:
     depends_on:
       minio:
         condition: service_started
-  
+
+  storage-cleanup:
+    build:
+      context: .
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    command:
+      - python
+      - -m
+      - app.services.storage_cleanup_worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      storage-init:
+        condition: service_completed_successfully
+
   api:
     build:
       context: .

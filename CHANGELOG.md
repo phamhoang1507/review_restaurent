@@ -61,6 +61,15 @@
 - Private S3-compatible storage with a pinned local MinIO source build.
 - Dedicated private-bucket bootstrap and storage readiness check.
 - Persistent storage verification script.
+- Secure review image upload endpoints.
+- JPEG, PNG and WebP validation with EXIF orientation.
+- WebP conversion, metadata stripping and image resizing.
+- Per-user upload rate limiting and processing concurrency control.
+- Database-enforced maximum of five images per review.
+- Pending/ready upload lifecycle.
+- Durable object-deletion outbox with exponential retry backoff.
+- Storage cleanup worker and manual cleanup CLI.
+- Revision 0005 for review image state and storage deletion jobs.
 
 ### Verified
 
@@ -73,6 +82,8 @@
 - API readiness remains healthy after migration.
 - Revision 0003 is current with no schema drift.
 - Auth integration script completed all 13 checks.
+- Revision 0005 is current with no schema drift.
+- Image processing verification completed all five checks.
 
 ### Fixed
 

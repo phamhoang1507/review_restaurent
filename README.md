@@ -17,7 +17,8 @@ Application name: `LocalSpot`.
 - Đã có Auth rate limiting, Origin validation và dependency phân quyền.
 - Đã triển khai Places/Reviews API, rating aggregates và search/filter.
 - Đã thêm private object storage và bucket bootstrap.
-- Chưa triển khai image upload API hoặc frontend.
+- Đã triển khai secure review image upload API và storage cleanup worker.
+- Chưa triển khai frontend.
 
 ## Requirements
 
@@ -87,6 +88,20 @@ PY
 | LOGIN_RATE_LIMIT | Login requests/IP/window |
 | REGISTER_RATE_LIMIT | Register requests/IP/window |
 | REFRESH_RATE_LIMIT | Giới hạn riêng cho từng endpoint refresh và logout |
+| S3_ENDPOINT_URL | MinIO endpoint dùng trong Docker network |
+| S3_PUBLIC_ENDPOINT_URL | Endpoint được ký vào URL trả cho browser |
+| S3_ACCESS_KEY / S3_SECRET_KEY | MinIO credentials |
+| S3_BUCKET | Private bucket chứa ảnh review |
+| S3_PRESIGNED_TTL_SECONDS | Thời hạn signed URL |
+| IMAGE_UPLOAD_MAX_BYTES | Giới hạn byte của file ảnh |
+| IMAGE_MAX_PIXELS | Giới hạn tổng pixel |
+| IMAGE_MAX_DIMENSION | Kích thước tối đa sau resize |
+| IMAGE_WEBP_QUALITY | Chất lượng WebP |
+| IMAGE_UPLOAD_RATE_LIMIT | Upload/user/window |
+| IMAGE_UPLOAD_RATE_WINDOW_SECONDS | Upload rate-limit window |
+| IMAGE_PROCESSING_CONCURRENCY | Số ảnh xử lý đồng thời mỗi process |
+| IMAGE_PENDING_TTL_SECONDS | TTL của pending upload |
+| STORAGE_CLEANUP_INTERVAL_SECONDS | Chu kỳ cleanup worker |
 
 API sử dụng POSTGRES_HOST, POSTGRES_PORT và REDIS_URL để kết nối services
 bên trong Docker network. Host port mapping nằm trong compose.yaml.
@@ -175,8 +190,8 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Implement private image storage, validated image uploads and cleanup,
-then build the web frontend.
+Build the web frontend, then add CI/CD, reverse proxy, TLS,
+monitoring, backup and restore verification.
 
 ## API development
 
@@ -495,6 +510,9 @@ Authenticated:
 - POST /api/v1/places/{place_id}/reviews
 - PATCH /api/v1/reviews/{review_id}
 - DELETE /api/v1/reviews/{review_id}
+- GET /api/v1/reviews/{review_id}/images
+- POST /api/v1/reviews/{review_id}/images
+- DELETE /api/v1/review-images/{image_id}
 
 Rules:
 
@@ -507,8 +525,10 @@ Rules:
 - Creating/editing reviews requires an active place.
 - Owners/Admins may delete reviews of inactive places.
 - Review listing uses created_at/id cursor pagination.
-- Review deletion cascades image metadata; object cleanup is a separate concern.
-- Image upload is not implemented yet.
+- Review deletion queues object deletion through the durable cleanup outbox.
+- JPEG, PNG and static WebP uploads are validated and converted to WebP.
+- Each review supports at most five images.
+- Image objects remain private; API responses expose short-lived signed URLs.
 
 Verification:
 
@@ -580,7 +600,7 @@ It also reapplies the dedicated bucket's private-policy configuration.
 Data is stored in minio_data.
 docker compose down preserves it; down -v deletes it.
 
-Image upload endpoints are not implemented yet.
+Review image upload/list/delete endpoints and durable object cleanup are implemented.
 
 ## Docker Hub
 

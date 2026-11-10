@@ -53,6 +53,17 @@ class ReviewUpdate(BaseModel):
 
         return self
 
+class ReviewImageResponse(BaseModel):
+    id: int
+    review_id: int
+    url: str
+    url_expires_in: int
+    mime_type: str
+    size_bytes: int
+    width: int
+    height: int
+    position: int
+    created_at: datetime
 
 class ReviewResponse(BaseModel):
     id: int
@@ -65,6 +76,9 @@ class ReviewResponse(BaseModel):
     value_rating: int
     created_at: datetime
     updated_at: datetime
+    images: list[ReviewImageResponse] = Field(
+        default_factory=list
+    )
 
     @computed_field
     @property

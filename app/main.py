@@ -18,6 +18,7 @@ from app.modules.places.router import router as places_router
 from app.modules.reviews.router import router as reviews_router
 from app.core.storage_config import get_storage_settings
 from app.services.storage import create_s3_client
+from app.middleware.upload_size import ReviewImageUploadLimitMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+app.add_middleware(ReviewImageUploadLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

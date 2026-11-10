@@ -8,6 +8,7 @@ from app.modules.places.models import Place
 from app.modules.reviews.models import Review, ReviewImage
 from app.modules.users.models import User
 from app.modules.auth.models import AuthSession
+from app.services.models import StorageDeletionJob
 
 target_metadata = Base.metadata
 
@@ -19,6 +20,7 @@ REGISTERED_MODELS = (
     Review,
     ReviewImage,
     AuthSession,
+    StorageDeletionJob,
 )
 
 

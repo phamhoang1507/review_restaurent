@@ -90,20 +90,22 @@
 - POST /api/v1/places/{place_id}/reviews
 - PATCH /api/v1/reviews/{review_id}
 - DELETE /api/v1/reviews/{review_id}
+- GET /api/v1/reviews/{review_id}/images
+- POST /api/v1/reviews/{review_id}/images
+- DELETE /api/v1/review-images/{image_id}
 
 ## Verification
 
 - Revisions 0001 and 0002 were verified on the user's machine.
 - Database constraint verification script is available.
 - Auth integration script expects 13 PASS messages.
-- Migration head is 0004; schema drift verification uses alembic check.
+- Migration head is 0005; schema drift verification uses alembic check.
 - Reviewed Auth flows passed all 13 local integration checks.
 - Auth script creates persistent local test users and prints their credentials.
 
 ## Not implemented yet
 
 - Frontend.
-- Image validation, compression, upload endpoints and reliable object cleanup.
 - Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.
@@ -114,7 +116,7 @@
 
 - Auth foundation, basic endpoints and initial rate limiting have separate commits.
 - Auth, Places, Reviews and Search have been committed.
-- Private storage foundation is the current pending feature commit.
+- Secure review image upload and cleanup are the current pending feature commit.
 - Docker release tags must identify a specific clean Git revision.
 - Do not overwrite published release tags.
 - v0.3.0-auth-complete published for the Auth/Admin/CORS milestone.
@@ -122,8 +124,8 @@
 
 ## Current step
 
-Storage source includes the boto3 closing() fix.
-MinIO is built locally from RELEASE.2025-10-15T17-29-55Z.
-Local Compose startup and all 6 storage checks passed.
-
-Next: image validation, WebP conversion, upload endpoints and cleanup.
+- Revision 0005 adds image status, position bounds and storage deletion jobs.
+- Review images use pending/ready lifecycle.
+- Objects remain private and browser access uses signed URLs.
+- Cleanup worker retries failed object deletion.
+- Next: web frontend, CI/CD and production operations.
