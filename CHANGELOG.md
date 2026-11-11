@@ -72,6 +72,8 @@
 - Revision 0005 for review image state and storage deletion jobs.
 - Review image lifecycle integration verification script.
 
+- Frontend authentication client with in-memory access tokens, HttpOnly refresh-cookie rotation and single-flight 401 retry.
+
 ### Verified
 
 - Docker Compose build và startup thành công trên Ubuntu WSL2 với Docker Desktop.
