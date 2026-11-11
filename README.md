@@ -422,6 +422,7 @@ Password phải dài 12–128 ký tự.
 - Store the access token in frontend memory.
 - Send the access token through the Authorization Bearer header.
 - Coordinate concurrent requests so only one refresh runs at a time.
+- Frontend quality gate runs Oxlint, Auth unit tests, TypeScript checking and a Vite production build.
 
 Use localhost consistently for frontend and API in local development.
 

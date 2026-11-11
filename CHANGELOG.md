@@ -74,6 +74,8 @@
 
 - Frontend authentication client with in-memory access tokens, HttpOnly refresh-cookie rotation and single-flight 401 retry.
 
+- Frontend Auth unit tests for login, single-flight refresh, one-time retry, StrictMode bootstrap and logout failure.
+
 ### Verified
 
 - Docker Compose build và startup thành công trên Ubuntu WSL2 với Docker Desktop.
@@ -88,6 +90,8 @@
 - Revision 0005 is current with no schema drift.
 - Image processing verification completed all five checks.
 - Review image lifecycle integration verification completed all eight checks.
+
+- Five frontend authentication tests, Oxlint, TypeScript and Vite production build completed successfully.
 
 ### Fixed
 

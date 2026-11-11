@@ -19,6 +19,7 @@ RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
 
 COPY --chown=node:node .oxlintrc.json index.html tsconfig.json vite.config.ts ./
 COPY --chown=node:node src ./src
+COPY --chown=node:node tests ./tests
 
 RUN npm run check \
     && rm -rf dist /tmp/localspot-vite-cache
