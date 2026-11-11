@@ -1,6 +1,6 @@
 # LocalSpot
 
-Backend cho nền tảng tìm kiếm và review quán cà phê, quán ăn địa phương.
+Full-stack web application cho nền tảng tìm kiếm và review quán cà phê, quán ăn địa phương.
 
 Repository directory: `review_restaurent`.
 Application name: `LocalSpot`.
@@ -18,7 +18,7 @@ Application name: `LocalSpot`.
 - Đã triển khai Places/Reviews API, rating aggregates và search/filter.
 - Đã thêm private object storage và bucket bootstrap.
 - Đã triển khai secure review image upload API và storage cleanup worker.
-- Chưa triển khai frontend.
+- React, TypeScript và Vite frontend chạy bằng Docker Compose.
 
 ## Requirements
 
@@ -27,6 +27,7 @@ Application name: `LocalSpot`.
 - Docker Compose hỗ trợ `up --wait`.
 - Host port 5432 còn trống.
 - Host port 8001 còn trống.
+- Host port 5173 còn trống.
 - Host ports 9000 và 9001 còn trống.
 
 Chạy các lệnh trong thư mục gốc repository.
@@ -76,6 +77,7 @@ PY
 | POSTGRES_PORT | PostgreSQL internal port |
 | REDIS_URL | Redis connection URL dành cho API trong Docker network |
 | APP_NAME | Tên ứng dụng trong OpenAPI |
+| VITE_API_BASE_URL | API URL được frontend gọi từ browser |
 | JWT_SECRET_KEY | Secret ký JWT, tối thiểu 32 ký tự |
 | JWT_ALGORITHM | Thuật toán ký, hiện chỉ hỗ trợ HS256 |
 | JWT_ISSUER / JWT_AUDIENCE | Issuer và audience của access token |

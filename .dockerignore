@@ -12,6 +12,7 @@ htmlcov
 .idea
 .vscode
 
-# Frontend
-frontend/node_modules
-frontend/dist
+frontend
+
+# Frontend has its own Docker build context
+frontend
