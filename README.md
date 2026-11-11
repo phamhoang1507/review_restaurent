@@ -538,6 +538,15 @@ python3 scripts/check_reviews.py
 
 The script retains two test users and one inactive place.
 
+Review image integration verification:
+
+```bash
+python3 scripts/check_review_images.py
+```
+
+Expected: 8 PASS messages. The script requires an existing Admin account and a valid district ID.
+It retains two test users and one inactive place, and removes every uploaded test object.
+
 ## Search verification
 
 ```bash

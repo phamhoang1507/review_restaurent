@@ -102,6 +102,7 @@
 - Migration head is 0005; schema drift verification uses alembic check.
 - Reviewed Auth flows passed all 13 local integration checks.
 - Auth script creates persistent local test users and prints their credentials.
+- Review image integration script completed all 8 lifecycle checks.
 
 ## Not implemented yet
 

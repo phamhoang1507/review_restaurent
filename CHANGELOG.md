@@ -70,6 +70,7 @@
 - Durable object-deletion outbox with exponential retry backoff.
 - Storage cleanup worker and manual cleanup CLI.
 - Revision 0005 for review image state and storage deletion jobs.
+- Review image lifecycle integration verification script.
 
 ### Verified
 
@@ -84,6 +85,7 @@
 - Auth integration script completed all 13 checks.
 - Revision 0005 is current with no schema drift.
 - Image processing verification completed all five checks.
+- Review image lifecycle integration verification completed all eight checks.
 
 ### Fixed
 
