@@ -72,10 +72,11 @@
 - Revision 0005 for review image state and storage deletion jobs.
 - Review image lifecycle integration verification script.
 - React AuthProvider with session bootstrap, authentication actions, stale-operation protection and explicit registration auto-login errors.
-
 - Frontend authentication client with in-memory access tokens, HttpOnly refresh-cookie rotation and single-flight 401 retry.
-
 - Frontend Auth unit tests for login, single-flight refresh, one-time retry, StrictMode bootstrap and logout failure.
+- Accessible Login/Register panel with client-side validation and account-state views.
+- Auth error messages for invalid credentials, duplicate accounts, rate limits and unavailable services.
+- Pure Auth form tests for normalization, validation and API error mapping.
 
 ### Verified
 
@@ -92,7 +93,7 @@
 - Image processing verification completed all five checks.
 - Review image lifecycle integration verification completed all eight checks.
 
-- Five frontend authentication tests, Oxlint, TypeScript and Vite production build completed successfully.
+- Thirteen frontend authentication and form tests, Oxlint, TypeScript and Vite production build completed successfully.
 
 ### Fixed
 

@@ -20,6 +20,7 @@ Application name: `LocalSpot`.
 - Đã triển khai secure review image upload API và storage cleanup worker.
 - React, TypeScript và Vite frontend chạy bằng Docker Compose.
 - Frontend Auth client và AuthProvider khôi phục session bằng HttpOnly refresh cookie.
+- Màn hình Login/Register hỗ trợ validation, lỗi rate limit, thông tin tài khoản và logout.
 
 ## Requirements
 
@@ -429,6 +430,16 @@ Password phải dài 12–128 ký tự.
 - Registration signs the new account in after the register request succeeds.
 - If automatic login fails after account creation, RegistrationLoginError lets the UI continue at Login without retrying registration.
 - Bootstrap failures are separate from form submission failures and can be retried.
+- Login/Register fields use native semantics, autocomplete attributes and linked validation messages.
+- Auth errors distinguish invalid credentials, duplicate email, rate limits and temporary service failures.
+- Authenticated users see their account identity and can end the current session.
+- Pure form tests cover normalization, mode-specific constraints and API error mapping.
+
+Run the frontend quality gate:
+
+```bash
+docker compose run --rm --no-deps frontend npm run check
+```
 
 Use localhost consistently for frontend and API in local development.
 

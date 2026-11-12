@@ -80,6 +80,10 @@
 - Register through AuthProvider automatically logs in the new account.
 - RegistrationLoginError distinguishes a created account from a failed automatic login.
 - React StrictMode remounts reuse the Auth client's single-flight bootstrap request.
+- AuthPanel provides accessible Login/Register forms and authenticated account details.
+- Form validation follows backend length limits and confirms registration passwords.
+- UI error mapping covers invalid credentials, duplicate accounts, rate limits and service failures.
+- Auth form normalization, validation and error mapping have pure node:test coverage.
 
 ## Endpoints
 
@@ -114,10 +118,12 @@
 - Reviewed Auth flows passed all 13 local integration checks.
 - Auth script creates persistent local test users and prints their credentials.
 - Review image integration script completed all 8 lifecycle checks.
+- Frontend Auth client and form logic have 13 passing tests.
+- Frontend quality gate runs Auth client/form tests, Oxlint, TypeScript and the Vite production build.
 
 ## Not implemented yet
 
-- Frontend authentication screens, routing and Places/Reviews UI.
+- Frontend routing and Places/Reviews UI.
 - Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.
@@ -128,7 +134,9 @@
 
 - Auth foundation, basic endpoints and initial rate limiting have separate commits.
 - Auth, Places, Reviews and Search have been committed.
-- Secure review image upload and cleanup are the current pending feature commit.
+- Backend through secure review image upload and cleanup has been committed.
+- Frontend foundation, Auth client tests and AuthProvider have been committed.
+- Login/Register AuthPanel is the current development milestone.
 - Docker release tags must identify a specific clean Git revision.
 - Do not overwrite published release tags.
 - v0.3.0-auth-complete published for the Auth/Admin/CORS milestone.
@@ -136,8 +144,7 @@
 
 ## Current step
 
-- Revision 0005 adds image status, position bounds and storage deletion jobs.
-- Review images use pending/ready lifecycle.
-- Objects remain private and browser access uses signed URLs.
-- Cleanup worker retries failed object deletion.
-- Next: web frontend, CI/CD and production operations.
+- Login/Register forms consume AuthProvider and preserve the in-memory access-token model.
+- Authenticated users can review their identity and log out from the landing page.
+- Next: client-side routing, protected navigation and Places/Reviews screens.
+- After the frontend milestone: CI/CD and production operations.
