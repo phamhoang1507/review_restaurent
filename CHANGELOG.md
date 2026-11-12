@@ -77,6 +77,10 @@
 - Accessible Login/Register panel with client-side validation and account-state views.
 - Auth error messages for invalid credentials, duplicate accounts, rate limits and unavailable services.
 - Pure Auth form tests for normalization, validation and API error mapping.
+- Pinned react-router-dom 7.18.5 client-side routing.
+- Home, Login, Register, protected Account and 404 routes.
+- Validated internal return paths after protected-route authentication.
+- Responsive semantic navigation and route-state tests.
 
 ### Verified
 
@@ -93,7 +97,7 @@
 - Image processing verification completed all five checks.
 - Review image lifecycle integration verification completed all eight checks.
 
-- Thirteen frontend authentication and form tests, Oxlint, TypeScript and Vite production build completed successfully.
+- Twenty-one frontend authentication, form and route-state tests, Oxlint, TypeScript and Vite production build completed successfully.
 
 ### Fixed
 

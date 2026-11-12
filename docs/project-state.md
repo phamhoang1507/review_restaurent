@@ -84,6 +84,11 @@
 - Form validation follows backend length limits and confirms registration passwords.
 - UI error mapping covers invalid credentials, duplicate accounts, rate limits and service failures.
 - Auth form normalization, validation and error mapping have pure node:test coverage.
+- react-router-dom 7.18.5 provides Home, Login, Register, protected Account and 404 routes.
+- Protected-route redirects preserve validated internal pathname, query and hash values.
+- External, protocol-relative and authentication-loop return targets are rejected.
+- BrowserRouter production hosting requires an index.html fallback for client routes.
+- Header navigation uses semantic active links and a responsive two-row mobile layout.
 
 ## Endpoints
 
@@ -118,12 +123,12 @@
 - Reviewed Auth flows passed all 13 local integration checks.
 - Auth script creates persistent local test users and prints their credentials.
 - Review image integration script completed all 8 lifecycle checks.
-- Frontend Auth client and form logic have 13 passing tests.
+- Frontend Auth client, form and route-state logic have 21 passing tests.
 - Frontend quality gate runs Auth client/form tests, Oxlint, TypeScript and the Vite production build.
 
 ## Not implemented yet
 
-- Frontend routing and Places/Reviews UI.
+- Frontend Places/Reviews UI.
 - Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.
@@ -136,7 +141,8 @@
 - Auth, Places, Reviews and Search have been committed.
 - Backend through secure review image upload and cleanup has been committed.
 - Frontend foundation, Auth client tests and AuthProvider have been committed.
-- Login/Register AuthPanel is the current development milestone.
+- Login/Register AuthPanel has been committed.
+- Client-side routing and protected navigation are the current development milestone.
 - Docker release tags must identify a specific clean Git revision.
 - Do not overwrite published release tags.
 - v0.3.0-auth-complete published for the Auth/Admin/CORS milestone.
@@ -144,7 +150,7 @@
 
 ## Current step
 
-- Login/Register forms consume AuthProvider and preserve the in-memory access-token model.
-- Authenticated users can review their identity and log out from the landing page.
-- Next: client-side routing, protected navigation and Places/Reviews screens.
+- Home, Login, Register, protected Account and 404 routes use a shared application shell.
+- Protected navigation returns authenticated users only to validated internal paths.
+- Next: public Places listing, search and filters.
 - After the frontend milestone: CI/CD and production operations.

@@ -21,6 +21,23 @@ type Feedback = {
   message: string;
 };
 
+interface AuthPanelProps {
+  initialMode?: AuthMode;
+  initialEmail?: string;
+  initialNotice?: string | null;
+  onModeChange?: (mode: AuthMode) => void;
+  onAuthenticated?: () => void;
+  onRegistrationLoginFailure?: (recovery: {
+    email: string;
+    message: string;
+  }) => void;
+  onLogoutStart?: () => void;
+  onLogoutSettled?: (result: {
+    serverConfirmed: boolean;
+    notice: string;
+  }) => void;
+}
+
 const emptyValues: AuthFormValues = {
   displayName: "",
   email: "",
@@ -39,15 +56,29 @@ function userInitials(displayName: string): string {
   return initials || "LS";
 }
 
-export function AuthPanel() {
+export function AuthPanel({
+  initialMode = "login",
+  initialEmail = "",
+  initialNotice = null,
+  onModeChange,
+  onAuthenticated,
+  onRegistrationLoginFailure,
+  onLogoutStart,
+  onLogoutSettled,
+}: AuthPanelProps) {
   const auth = useAuth();
-  const [mode, setMode] = useState<AuthMode>("login");
-  const [values, setValues] =
-    useState<AuthFormValues>(emptyValues);
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [values, setValues] = useState<AuthFormValues>({
+    ...emptyValues,
+    email: initialEmail,
+  });
   const [fieldErrors, setFieldErrors] =
     useState<AuthFieldErrors>({});
-  const [feedback, setFeedback] =
-    useState<Feedback | null>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(
+    initialNotice === null
+      ? null
+      : { tone: "notice", message: initialNotice },
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const requestInFlightRef = useRef(false);
   const displayNameRef = useRef<HTMLInputElement>(null);
@@ -87,6 +118,11 @@ export function AuthPanel() {
 
   function changeMode(nextMode: AuthMode) {
     if (isSubmitting || nextMode === mode) {
+      return;
+    }
+
+    if (onModeChange !== undefined) {
+      onModeChange(nextMode);
       return;
     }
 
@@ -169,11 +205,26 @@ export function AuthPanel() {
       }
 
       setValues(emptyValues);
-      requestAnimationFrame(() => {
-        accountTitleRef.current?.focus();
-      });
+
+      if (onAuthenticated !== undefined) {
+        onAuthenticated();
+      } else {
+        requestAnimationFrame(() => {
+          accountTitleRef.current?.focus();
+        });
+      }
     } catch (error: unknown) {
       if (error instanceof RegistrationLoginError) {
+        const message = authErrorMessage("register", error);
+
+        if (onRegistrationLoginFailure !== undefined) {
+          onRegistrationLoginFailure({
+            email: error.registeredUser.email,
+            message,
+          });
+          return;
+        }
+
         setMode("login");
         setValues({
           ...emptyValues,
@@ -182,7 +233,7 @@ export function AuthPanel() {
         setFieldErrors({});
         setFeedback({
           tone: "notice",
-          message: authErrorMessage("register", error),
+          message,
         });
 
         requestAnimationFrame(() => {
@@ -206,6 +257,7 @@ export function AuthPanel() {
       return;
     }
 
+    onLogoutStart?.();
     requestInFlightRef.current = true;
     setIsSubmitting(true);
     setFeedback(null);
@@ -213,14 +265,32 @@ export function AuthPanel() {
     try {
       await auth.logout();
       setValues(emptyValues);
-      requestAnimationFrame(() => {
-        emailRef.current?.focus();
-      });
+
+      if (onLogoutSettled !== undefined) {
+        onLogoutSettled({
+          serverConfirmed: true,
+          notice: "Bạn đã đăng xuất an toàn.",
+        });
+      } else {
+        requestAnimationFrame(() => {
+          emailRef.current?.focus();
+        });
+      }
     } catch {
+      const message =
+        "Phiên trên thiết bị đã được xóa, nhưng máy chủ chưa xác nhận đăng xuất. Vui lòng thử lại khi kết nối ổn định.";
+
+      if (onLogoutSettled !== undefined) {
+        onLogoutSettled({
+          serverConfirmed: false,
+          notice: message,
+        });
+        return;
+      }
+
       setFeedback({
         tone: "notice",
-        message:
-          "Phiên trên thiết bị đã được xóa, nhưng máy chủ chưa xác nhận đăng xuất. Vui lòng thử lại khi kết nối ổn định.",
+        message,
       });
       focusFeedback();
     } finally {

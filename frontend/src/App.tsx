@@ -1,49 +1,106 @@
-import { AuthPanel } from "./auth/AuthPanel";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
 
-function App() {
+import { useAuth } from "./auth/auth-context";
+import {
+  AccountPage,
+  AuthPage,
+  HomePage,
+  NotFoundPage,
+  RequireAuth,
+  RouteEffects,
+} from "./routes";
+
+function navigationClass({
+  isActive,
+}: {
+  isActive: boolean;
+}): string {
+  return isActive
+    ? "navigation-link navigation-link--active"
+    : "navigation-link";
+}
+
+function AppLayout() {
+  const auth = useAuth();
+
   return (
     <div className="page-shell">
+      <a className="skip-link" href="#main-content">
+        Bỏ qua tới nội dung chính
+      </a>
+
       <header className="site-header">
-        <a className="brand" href="/" aria-label="LocalSpot home">
+        <Link className="brand" to="/" aria-label="LocalSpot home">
           <span className="brand-mark" aria-hidden="true">
             LS
           </span>
           <span>LocalSpot</span>
-        </a>
+        </Link>
 
-        <span className="environment-badge">Development</span>
+        <nav className="site-navigation" aria-label="Điều hướng chính">
+          <NavLink className={navigationClass} end to="/">
+            Trang chủ
+          </NavLink>
+
+          {auth.status === "authenticated" ? (
+            <NavLink className={navigationClass} to="/account">
+              Tài khoản
+            </NavLink>
+          ) : null}
+
+          {auth.status === "anonymous" || auth.status === "error" ? (
+            <>
+              <NavLink className={navigationClass} to="/login">
+                Đăng nhập
+              </NavLink>
+              <NavLink className={navigationClass} to="/register">
+                Đăng ký
+              </NavLink>
+            </>
+          ) : null}
+
+          {auth.status === "loading" ? (
+            <span className="navigation-status" role="status">
+              Đang kiểm tra phiên
+            </span>
+          ) : null}
+        </nav>
       </header>
 
-      <main className="main-content">
-        <section className="hero" aria-labelledby="hero-title">
-          <p className="eyebrow">LOCAL REVIEWS · REAL PLACES</p>
-
-          <h1 id="hero-title">
-            Tìm đúng quán từ những trải nghiệm thật.
-          </h1>
-
-          <p className="hero-copy">
-            Khám phá quán cà phê và địa điểm ăn uống địa phương qua đánh giá
-            đa tiêu chí, hình ảnh thực tế và bộ lọc phù hợp nhu cầu.
-          </p>
-
-          <ul className="feature-list" aria-label="LocalSpot features">
-            <li>Không gian</li>
-            <li>Đồ ăn &amp; thức uống</li>
-            <li>Giá trị</li>
-          </ul>
-        </section>
-
-        <AuthPanel />
-      </main>
+      <RouteEffects />
+      <Outlet />
 
       <footer className="site-footer">
         <span>
           FastAPI · PostgreSQL · Redis · S3-compatible storage
         </span>
-        <span>LocalSpot authentication</span>
+        <span>LocalSpot web</span>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="login" element={<AuthPage mode="login" />} />
+        <Route path="register" element={<AuthPage mode="register" />} />
+
+        <Route element={<RequireAuth />}>
+          <Route path="account" element={<AccountPage />} />
+        </Route>
+
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
 

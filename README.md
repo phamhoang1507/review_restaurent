@@ -21,6 +21,7 @@ Application name: `LocalSpot`.
 - React, TypeScript và Vite frontend chạy bằng Docker Compose.
 - Frontend Auth client và AuthProvider khôi phục session bằng HttpOnly refresh cookie.
 - Màn hình Login/Register hỗ trợ validation, lỗi rate limit, thông tin tài khoản và logout.
+- React Router cung cấp Home, Login, Register, protected Account và trang 404.
 
 ## Requirements
 
@@ -194,8 +195,8 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Build the web frontend, then add CI/CD, reverse proxy, TLS,
-monitoring, backup and restore verification.
+Build the public Places listing and filters, then add CI/CD, reverse proxy,
+TLS, monitoring, backup and restore verification.
 
 ## API development
 
@@ -434,6 +435,15 @@ Password phải dài 12–128 ký tự.
 - Auth errors distinguish invalid credentials, duplicate email, rate limits and temporary service failures.
 - Authenticated users see their account identity and can end the current session.
 - Pure form tests cover normalization, mode-specific constraints and API error mapping.
+- react-router-dom 7.18.5 is pinned for client-side navigation.
+- Routes: `/`, `/login`, `/register`, protected `/account` and a wildcard 404 page.
+- Protected redirects preserve only validated internal paths and return users after authentication.
+- Navigation uses semantic links, active-route state and responsive keyboard-accessible controls.
+- Route-state tests cover internal return paths and rejection of external redirect targets.
+
+BrowserRouter requires the production reverse proxy to serve `index.html` for
+unknown frontend paths such as `/account`. The reverse-proxy fallback will be
+configured during the DevOps milestone.
 
 Run the frontend quality gate:
 
