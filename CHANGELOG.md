@@ -71,6 +71,7 @@
 - Storage cleanup worker and manual cleanup CLI.
 - Revision 0005 for review image state and storage deletion jobs.
 - Review image lifecycle integration verification script.
+- React AuthProvider with session bootstrap, authentication actions, stale-operation protection and explicit registration auto-login errors.
 
 - Frontend authentication client with in-memory access tokens, HttpOnly refresh-cookie rotation and single-flight 401 retry.
 

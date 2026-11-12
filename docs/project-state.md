@@ -70,6 +70,17 @@
 - Admin creation CLI: python -m app.cli create-admin.
 - CORS uses the same explicit origin allowlist as Auth Origin validation.
 
+## Frontend
+
+- React 19, TypeScript and Vite run through Docker Compose on http://localhost:5173.
+- Access tokens remain in memory; refresh tokens remain in HttpOnly cookies.
+- Auth client coalesces concurrent refresh and bootstrap requests.
+- Protected requests retry at most once after a 401 response.
+- AuthProvider restores the session, exposes the current user and owns login/register/logout state transitions.
+- Register through AuthProvider automatically logs in the new account.
+- RegistrationLoginError distinguishes a created account from a failed automatic login.
+- React StrictMode remounts reuse the Auth client's single-flight bootstrap request.
+
 ## Endpoints
 
 - GET /health/live
@@ -106,7 +117,7 @@
 
 ## Not implemented yet
 
-- Frontend.
+- Frontend authentication screens, routing and Places/Reviews UI.
 - Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.

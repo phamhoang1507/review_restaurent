@@ -19,6 +19,7 @@ Application name: `LocalSpot`.
 - Đã thêm private object storage và bucket bootstrap.
 - Đã triển khai secure review image upload API và storage cleanup worker.
 - React, TypeScript và Vite frontend chạy bằng Docker Compose.
+- Frontend Auth client và AuthProvider khôi phục session bằng HttpOnly refresh cookie.
 
 ## Requirements
 
@@ -423,6 +424,11 @@ Password phải dài 12–128 ký tự.
 - Send the access token through the Authorization Bearer header.
 - Coordinate concurrent requests so only one refresh runs at a time.
 - Frontend quality gate runs Oxlint, Auth unit tests, TypeScript checking and a Vite production build.
+- AuthProvider bootstraps the current session once, including React StrictMode remounts.
+- AuthProvider exposes login, register, logout, retryBootstrap and the current user.
+- Registration signs the new account in after the register request succeeds.
+- If automatic login fails after account creation, RegistrationLoginError lets the UI continue at Login without retrying registration.
+- Bootstrap failures are separate from form submission failures and can be retried.
 
 Use localhost consistently for frontend and API in local development.
 
