@@ -33,6 +33,10 @@ def list_places(
     session: Annotated[Session, Depends(get_session)],
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     cursor: Annotated[str | None, Query(min_length=1, max_length=512)] = None,
+    province_id: Annotated[
+        int | None,
+        Query(ge=1, le=MAX_BIGINT),
+    ] = None,
     district_id: Annotated[
         int | None,
         Query(ge=1, le=MAX_BIGINT),
@@ -58,6 +62,7 @@ def list_places(
         session,
         limit=limit,
         cursor=cursor,
+        province_id=province_id,
         district_id=district_id,
         min_price=min_price,
         max_price=max_price,

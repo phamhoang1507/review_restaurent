@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import { useAuth } from "./auth/auth-context";
+import { PlacesPage } from "./places/PlacesPage";
 import {
   AccountPage,
   AuthPage,
@@ -46,6 +47,10 @@ function AppLayout() {
         <nav className="site-navigation" aria-label="Điều hướng chính">
           <NavLink className={navigationClass} end to="/">
             Trang chủ
+          </NavLink>
+
+          <NavLink className={navigationClass} to="/places">
+            Địa điểm
           </NavLink>
 
           {auth.status === "authenticated" ? (
@@ -91,6 +96,7 @@ function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="places" element={<PlacesPage />} />
         <Route path="login" element={<AuthPage mode="login" />} />
         <Route path="register" element={<AuthPage mode="register" />} />
 

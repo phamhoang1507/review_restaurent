@@ -81,6 +81,11 @@
 - Home, Login, Register, protected Account and 404 routes.
 - Validated internal return paths after protected-route authentication.
 - Responsive semantic navigation and route-state tests.
+- Province-level Places filtering backed by the existing district relationship.
+- Runtime-validated public Places and location lookup client with abortable requests.
+- URL-synchronized Places search, province/district, price and minimum-rating filters.
+- Accessible responsive Places result cards with loading, error, empty and cursor load-more states.
+- Pure Places client and filter tests for query serialization, response contracts, validation and page merging.
 
 ### Verified
 
@@ -97,7 +102,8 @@
 - Image processing verification completed all five checks.
 - Review image lifecycle integration verification completed all eight checks.
 
-- Twenty-one frontend authentication, form and route-state tests, Oxlint, TypeScript and Vite production build completed successfully.
+- Forty-six frontend authentication, route, Places client and filter tests, Oxlint, TypeScript and Vite production build completed successfully.
+- Places browser acceptance passed URL restoration, cursor load-more, invalid-location canonicalization, 320px overflow and axe serious/critical checks.
 
 ### Fixed
 

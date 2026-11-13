@@ -89,6 +89,11 @@
 - External, protocol-relative and authentication-loop return targets are rejected.
 - BrowserRouter production hosting requires an index.html fallback for client routes.
 - Header navigation uses semantic active links and a responsive two-row mobile layout.
+- Public `/places` listing uses URL-backed applied filters and a separate draft form.
+- Places filters cover name, province, district, overlapping price range and minimum aggregate rating.
+- Province selection loads dependent districts; province-only filtering is supported by the Places API.
+- Cursor pagination keeps cursors out of the URL, preserves applied filters and defensively deduplicates appended places.
+- Places and location responses are runtime-validated; stale requests are aborted when filters change.
 
 ## Endpoints
 
@@ -124,11 +129,13 @@
 - Auth script creates persistent local test users and prints their credentials.
 - Review image integration script completed all 8 lifecycle checks.
 - Frontend Auth client, form and route-state logic have 21 passing tests.
-- Frontend quality gate runs Auth client/form tests, Oxlint, TypeScript and the Vite production build.
+- Places client, response contract, URL filter and cursor merge logic bring the frontend total to 46 passing tests.
+- Frontend quality gate runs Auth, route, Places client/filter tests, Oxlint, TypeScript and the Vite production build.
+- Places browser acceptance covers URL Back/Forward, cursor append, invalid location IDs, 320px layout and serious/critical axe violations.
 
 ## Not implemented yet
 
-- Frontend Places/Reviews UI.
+- Frontend Place detail and Reviews UI.
 - Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.
@@ -142,15 +149,16 @@
 - Backend through secure review image upload and cleanup has been committed.
 - Frontend foundation, Auth client tests and AuthProvider have been committed.
 - Login/Register AuthPanel has been committed.
-- Client-side routing and protected navigation are the current development milestone.
+- Public Places listing, search and filtering are the current development milestone.
 - Docker release tags must identify a specific clean Git revision.
 - Do not overwrite published release tags.
 - v0.3.0-auth-complete published for the Auth/Admin/CORS milestone.
-- Location lookup endpoints belong to the next development milestone.
+- Location lookup endpoints support the public Places filter form.
 
 ## Current step
 
-- Home, Login, Register, protected Account and 404 routes use a shared application shell.
+- Home, public Places, Login, Register, protected Account and 404 routes use a shared application shell.
+- Public Places search combines province/district, price and rating filters with cursor-based load-more.
 - Protected navigation returns authenticated users only to validated internal paths.
-- Next: public Places listing, search and filters.
+- Next: public Place detail and Reviews UI.
 - After the frontend milestone: CI/CD and production operations.

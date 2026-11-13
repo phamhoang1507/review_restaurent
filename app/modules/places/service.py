@@ -95,6 +95,7 @@ def list_public_places(
     *,
     limit: int,
     cursor: str | None,
+    province_id: int | None,
     district_id: int | None,
     min_price: int | None,
     max_price: int | None,
@@ -114,6 +115,14 @@ def list_public_places(
     statement = select(Place).where(
         Place.is_active.is_(True),
     )
+
+    if province_id is not None:
+        statement = statement.join(
+            District,
+            District.id == Place.district_id,
+        ).where(
+            District.province_id == province_id,
+        )
 
     if district_id is not None:
         statement = statement.where(

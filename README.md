@@ -22,6 +22,7 @@ Application name: `LocalSpot`.
 - Frontend Auth client và AuthProvider khôi phục session bằng HttpOnly refresh cookie.
 - Màn hình Login/Register hỗ trợ validation, lỗi rate limit, thông tin tài khoản và logout.
 - React Router cung cấp Home, Login, Register, protected Account và trang 404.
+- Trang Places công khai hỗ trợ tìm kiếm, lọc theo khu vực, khoảng giá, điểm số và cursor pagination.
 
 ## Requirements
 
@@ -195,7 +196,7 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Build the public Places listing and filters, then add CI/CD, reverse proxy,
+Build the public Place detail and Reviews UI, then add CI/CD, reverse proxy,
 TLS, monitoring, backup and restore verification.
 
 ## API development
@@ -425,7 +426,7 @@ Password phải dài 12–128 ký tự.
 - Store the access token in frontend memory.
 - Send the access token through the Authorization Bearer header.
 - Coordinate concurrent requests so only one refresh runs at a time.
-- Frontend quality gate runs Oxlint, Auth unit tests, TypeScript checking and a Vite production build.
+- Frontend quality gate runs Oxlint, unit tests, TypeScript checking and a Vite production build.
 - AuthProvider bootstraps the current session once, including React StrictMode remounts.
 - AuthProvider exposes login, register, logout, retryBootstrap and the current user.
 - Registration signs the new account in after the register request succeeds.
@@ -436,13 +437,17 @@ Password phải dài 12–128 ký tự.
 - Authenticated users see their account identity and can end the current session.
 - Pure form tests cover normalization, mode-specific constraints and API error mapping.
 - react-router-dom 7.18.5 is pinned for client-side navigation.
-- Routes: `/`, `/login`, `/register`, protected `/account` and a wildcard 404 page.
+- Routes: `/`, public `/places`, `/login`, `/register`, protected `/account` and a wildcard 404 page.
 - Protected redirects preserve only validated internal paths and return users after authentication.
 - Navigation uses semantic links, active-route state and responsive keyboard-accessible controls.
 - Route-state tests cover internal return paths and rejection of external redirect targets.
+- Places filters use the URL query string as applied state, so reload and browser Back/Forward restore the same search.
+- The Places client validates API responses at runtime, aborts stale requests and keeps all active filters while following an opaque cursor.
+- Province and district selectors use the public location lookup endpoints; changing province clears the selected district.
+- Place cards expose only data returned by the API: name, address, description, price range, aggregate rating and review count.
 
 BrowserRouter requires the production reverse proxy to serve `index.html` for
-unknown frontend paths such as `/account`. The reverse-proxy fallback will be
+unknown frontend paths such as `/places` and `/account`. The reverse-proxy fallback will be
 configured during the DevOps milestone.
 
 Run the frontend quality gate:
@@ -495,8 +500,11 @@ List parameters:
 
 - limit: default 20, maximum 100.
 - cursor: use next_cursor from the previous response.
+- province_id: filter by province through its districts.
 - district_id: filter by district.
 - min_price/max_price: inclusive overlapping price-range filter.
+- q: case-insensitive name substring, maximum 200 characters.
+- min_rating: 0–5, compared against the unrounded average.
 
 Order: created_at DESC, id DESC.
 
@@ -512,13 +520,19 @@ A place without reviews returns rating=null and review_count=0.
 Rating is calculated from original criterion scores and rounded to two decimals.
 Search and filters:
 
-- q: case-insensitive name substring, maximum 200 characters.
 - Percent and underscore in q are treated as literal characters.
 - Accent-insensitive search is not implemented.
-- min_rating: 0–5, compared against the unrounded average.
 - Places without reviews are excluded when min_rating is provided.
 - Name search uses a pg_trgm GIN index.
 - Keep all filters unchanged when following next_cursor.
+
+Public web route: http://localhost:5173/places
+
+- The filter form applies search, province/district, price range and minimum rating together.
+- Applied filters are serialized as `q`, `province_id`, `district_id`, `min_price`, `max_price` and `min_rating` URL parameters.
+- The pagination cursor remains transient UI state and is never written to the browser URL.
+- Changing an applied filter resets the current result page; “Xem thêm” appends and defensively removes duplicate IDs.
+- The API does not return a total count, so the UI reports only how many places are currently displayed.
 
 Verification:
 

@@ -81,6 +81,10 @@ function pageTitle(pathname: string): string {
     return "Đăng ký · LocalSpot";
   }
 
+  if (pathname === "/places") {
+    return "Khám phá địa điểm · LocalSpot";
+  }
+
   if (pathname === "/account") {
     return "Tài khoản · LocalSpot";
   }
@@ -95,6 +99,25 @@ export function RouteEffects() {
   useEffect(() => {
     document.title = pageTitle(location.pathname);
     window.scrollTo(0, 0);
+
+    const frame = requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLElement>("[data-route-heading]")
+        ?.focus();
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (
+      location.pathname !== "/account" ||
+      auth.status !== "authenticated"
+    ) {
+      return;
+    }
 
     const frame = requestAnimationFrame(() => {
       document

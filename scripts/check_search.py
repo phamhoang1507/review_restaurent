@@ -28,10 +28,33 @@ def item_ids(page):
     return {item["id"] for item in page["items"]}
 
 
+def find_province_id(district_id):
+    provinces = require_response(
+        200,
+        "GET",
+        "/api/v1/locations/provinces?limit=200",
+    )
+
+    for province in provinces:
+        districts = require_response(
+            200,
+            "GET",
+            f"/api/v1/locations/provinces/{province['id']}/districts?limit=200",
+        )
+
+        if any(district["id"] == district_id for district in districts):
+            return province["id"]
+
+    raise AssertionError(
+        f"District {district_id} was not found in any province"
+    )
+
+
 def main():
     email = input("Admin email: ").strip()
     password = getpass("Admin password: ")
     district_id = int(input("Demo district ID: "))
+    province_id = find_province_id(district_id)
 
     login = require_response(
         200,
@@ -116,9 +139,17 @@ def main():
 
     expected_ids = {place["id"] for place in places}
 
-    result = find_places(q=marker, district_id=district_id)
+    result = find_places(
+        q=marker,
+        province_id=province_id,
+        district_id=district_id,
+    )
     assert item_ids(result) == expected_ids, result
-    print("PASS: name and district filters")
+    print("PASS: name, province and district filters")
+
+    result = find_places(q=marker, province_id=province_id)
+    assert item_ids(result) == expected_ids, result
+    print("PASS: province filter")
 
     result = find_places(q=f"{marker.upper()} 100X CAFE")
     assert item_ids(result) == {place_a["id"]}, result
@@ -170,6 +201,7 @@ def main():
     print("PASS: combined filters")
 
     for parameters in (
+        {"province_id": 0},
         {"min_rating": 6},
         {"q": "   "},
         {"min_price": 80000, "max_price": 10000},
