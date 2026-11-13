@@ -86,6 +86,10 @@
 - URL-synchronized Places search, province/district, price and minimum-rating filters.
 - Accessible responsive Places result cards with loading, error, empty and cursor load-more states.
 - Pure Places client and filter tests for query serialization, response contracts, validation and page merging.
+- Public Place detail route with preserved return navigation from filtered Places results.
+- Runtime-validated public Reviews client with cursor pagination and embedded review images.
+- Accessible Place summary, per-criterion review cards, signed-image fallbacks and independent review error states.
+- Pure route, place-detail request, review contract and review-page merge tests.
 
 ### Verified
 
@@ -102,8 +106,9 @@
 - Image processing verification completed all five checks.
 - Review image lifecycle integration verification completed all eight checks.
 
-- Forty-six frontend authentication, route, Places client and filter tests, Oxlint, TypeScript and Vite production build completed successfully.
+- Eighty-two frontend authentication, route, Places/Reviews client and filter tests across 13 suites, Oxlint, TypeScript and Vite production build completed successfully.
 - Places browser acceptance passed URL restoration, cursor load-more, invalid-location canonicalization, 320px overflow and axe serious/critical checks.
+- Place-detail browser acceptance passed direct and preserved-filter navigation, review cursor append and terminal focus, signed-image fallback, not-found/error/empty states, 320px overflow, and axe serious/critical checks without page or console errors.
 
 ### Fixed
 

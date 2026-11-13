@@ -94,6 +94,11 @@
 - Province selection loads dependent districts; province-only filtering is supported by the Places API.
 - Cursor pagination keeps cursors out of the URL, preserves applied filters and defensively deduplicates appended places.
 - Places and location responses are runtime-validated; stale requests are aborted when filters change.
+- Public `/places/:placeId` renders Place detail and an independently loaded cursor-paginated review list.
+- Place-card navigation preserves the filtered list URL; direct detail loads safely fall back to `/places`.
+- Review responses validate ownership IDs, rating averages, timestamps, cursors and embedded signed-image metadata at runtime.
+- Review images use lazy loading, intrinsic dimensions, no-referrer requests and an accessible failure fallback.
+- Detail and review request state is keyed by route ID so stale responses never replace the active place.
 
 ## Endpoints
 
@@ -129,13 +134,14 @@
 - Auth script creates persistent local test users and prints their credentials.
 - Review image integration script completed all 8 lifecycle checks.
 - Frontend Auth client, form and route-state logic have 21 passing tests.
-- Places client, response contract, URL filter and cursor merge logic bring the frontend total to 46 passing tests.
-- Frontend quality gate runs Auth, route, Places client/filter tests, Oxlint, TypeScript and the Vite production build.
+- Places/Reviews clients, response contracts, route parsing, URL filters and cursor merge logic bring the frontend total to 82 passing tests across 13 suites.
+- Frontend quality gate runs Auth, route, Places/Reviews client and filter tests, Oxlint, TypeScript and the Vite production build.
 - Places browser acceptance covers URL Back/Forward, cursor append, invalid location IDs, 320px layout and serious/critical axe violations.
+- Place-detail browser acceptance covers direct and preserved-filter navigation, review cursor append and terminal focus, signed-image fallback, not-found/error/empty states, 320px layout, serious/critical axe violations, and page/console errors.
 
 ## Not implemented yet
 
-- Frontend Place detail and Reviews UI.
+- Authenticated create/edit/delete Review UI and image management.
 - Accent-insensitive search and large-dataset query benchmarking.
 - Session retention and cleanup.
 - CI/CD and production deployment.
@@ -149,7 +155,7 @@
 - Backend through secure review image upload and cleanup has been committed.
 - Frontend foundation, Auth client tests and AuthProvider have been committed.
 - Login/Register AuthPanel has been committed.
-- Public Places listing, search and filtering are the current development milestone.
+- Public Place detail and Reviews browsing are the current development milestone.
 - Docker release tags must identify a specific clean Git revision.
 - Do not overwrite published release tags.
 - v0.3.0-auth-complete published for the Auth/Admin/CORS milestone.
@@ -157,8 +163,9 @@
 
 ## Current step
 
-- Home, public Places, Login, Register, protected Account and 404 routes use a shared application shell.
+- Home, public Places list/detail, Login, Register, protected Account and 404 routes use a shared application shell.
 - Public Places search combines province/district, price and rating filters with cursor-based load-more.
+- Place detail shows API-provided metadata and cursor-paginated public reviews with ready review images.
 - Protected navigation returns authenticated users only to validated internal paths.
-- Next: public Place detail and Reviews UI.
+- Next: authenticated create/edit/delete Review UI and review-image management.
 - After the frontend milestone: CI/CD and production operations.

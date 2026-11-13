@@ -85,6 +85,10 @@ function pageTitle(pathname: string): string {
     return "Khám phá địa điểm · LocalSpot";
   }
 
+  if (/^\/places\/[^/]+\/?$/u.test(pathname)) {
+    return "Chi tiết địa điểm · LocalSpot";
+  }
+
   if (pathname === "/account") {
     return "Tài khoản · LocalSpot";
   }

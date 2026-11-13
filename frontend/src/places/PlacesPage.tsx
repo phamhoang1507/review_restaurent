@@ -5,7 +5,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 
 import {
   ApiContractError,
@@ -95,7 +99,13 @@ function ratingText(place: Place): string {
   return `${ratingFormatter.format(place.rating)} trên 5 từ ${place.review_count} đánh giá`;
 }
 
-function PlaceCard({ place }: { place: Place }) {
+function PlaceCard({
+  place,
+  returnTo,
+}: {
+  place: Place;
+  returnTo: string;
+}) {
   return (
     <article className="place-card">
       <div className="place-card-heading">
@@ -109,6 +119,14 @@ function PlaceCard({ place }: { place: Place }) {
         <span>{ratingText(place)}</span>
       </p>
       <p className="place-card-description">{place.description}</p>
+      <Link
+        className="place-card-detail-link"
+        to={`/places/${place.id}`}
+        state={{ returnTo }}
+        aria-label={`Xem chi tiết ${place.name}`}
+      >
+        Xem chi tiết <span aria-hidden="true">→</span>
+      </Link>
     </article>
   );
 }
@@ -134,6 +152,7 @@ function PlaceFilterError({
 }
 
 export function PlacesPage() {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const parsedFilters = useMemo(
     () => parsePlaceFilters(searchParams),
@@ -526,6 +545,7 @@ export function PlacesPage() {
   const visibleAnnouncement = placesResultIsCurrent
     ? announcement
     : "Đang tải danh sách địa điểm.";
+  const listReturnTo = `${location.pathname}${location.search}${location.hash}`;
 
   return (
     <main id="main-content" className="places-page">
@@ -829,7 +849,7 @@ export function PlacesPage() {
               >
                 {visiblePage.items.map((place) => (
                   <li key={place.id}>
-                    <PlaceCard place={place} />
+                    <PlaceCard place={place} returnTo={listReturnTo} />
                   </li>
                 ))}
               </ul>

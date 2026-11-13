@@ -317,6 +317,20 @@ export class PlacesClient {
       ((input, init) => globalThis.fetch(input, init));
   }
 
+  async getPlace(
+    placeId: number,
+    signal?: AbortSignal,
+  ): Promise<Place> {
+    requirePositiveId(placeId, "placeId");
+
+    const response = await this.get(
+      `/api/v1/places/${placeId}`,
+      signal,
+    );
+
+    return readValidated(response, isPlace, "place detail");
+  }
+
   async listPlaces(
     filters: PlaceFilters = {},
     options: PlacePageOptions = {},

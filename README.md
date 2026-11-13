@@ -23,6 +23,7 @@ Application name: `LocalSpot`.
 - Màn hình Login/Register hỗ trợ validation, lỗi rate limit, thông tin tài khoản và logout.
 - React Router cung cấp Home, Login, Register, protected Account và trang 404.
 - Trang Places công khai hỗ trợ tìm kiếm, lọc theo khu vực, khoảng giá, điểm số và cursor pagination.
+- Trang chi tiết địa điểm hiển thị thông tin do API cung cấp, review công khai và ảnh review từ signed URL.
 
 ## Requirements
 
@@ -196,8 +197,8 @@ Mỗi thay đổi code phải cập nhật tài liệu và cấu hình liên qua
 
 ## Next step
 
-Build the public Place detail and Reviews UI, then add CI/CD, reverse proxy,
-TLS, monitoring, backup and restore verification.
+Build authenticated create/edit/delete Review UI, then add CI/CD, reverse
+proxy, TLS, monitoring, backup and restore verification.
 
 ## API development
 
@@ -437,7 +438,7 @@ Password phải dài 12–128 ký tự.
 - Authenticated users see their account identity and can end the current session.
 - Pure form tests cover normalization, mode-specific constraints and API error mapping.
 - react-router-dom 7.18.5 is pinned for client-side navigation.
-- Routes: `/`, public `/places`, `/login`, `/register`, protected `/account` and a wildcard 404 page.
+- Routes: `/`, public `/places`, public `/places/:placeId`, `/login`, `/register`, protected `/account` and a wildcard 404 page.
 - Protected redirects preserve only validated internal paths and return users after authentication.
 - Navigation uses semantic links, active-route state and responsive keyboard-accessible controls.
 - Route-state tests cover internal return paths and rejection of external redirect targets.
@@ -445,10 +446,14 @@ Password phải dài 12–128 ký tự.
 - The Places client validates API responses at runtime, aborts stale requests and keeps all active filters while following an opaque cursor.
 - Province and district selectors use the public location lookup endpoints; changing province clears the selected district.
 - Place cards expose only data returned by the API: name, address, description, price range, aggregate rating and review count.
+- Place cards link to a public detail route and preserve the applied Places-list URL for return navigation.
+- Place detail and public review requests are independent, abort stale work and never render data from a previous route ID.
+- Public review responses and embedded image metadata are runtime-validated before rendering.
+- Review pagination keeps its opaque cursor out of the browser URL and preserves keyboard focus at the terminal page.
 
 BrowserRouter requires the production reverse proxy to serve `index.html` for
-unknown frontend paths such as `/places` and `/account`. The reverse-proxy fallback will be
-configured during the DevOps milestone.
+unknown frontend paths such as `/places/42` and `/account`. The reverse-proxy
+fallback will be configured during the DevOps milestone.
 
 Run the frontend quality gate:
 
@@ -534,6 +539,12 @@ Public web route: http://localhost:5173/places
 - Changing an applied filter resets the current result page; “Xem thêm” appends and defensively removes duplicate IDs.
 - The API does not return a total count, so the UI reports only how many places are currently displayed.
 
+Public detail route: `http://localhost:5173/places/{place_id}`
+
+- The detail page displays the place name, address, full description, price range, aggregate rating and review count.
+- Invalid, missing and inactive place IDs render a dedicated not-found state without leaking stale detail data.
+- Place responses do not contain province/district names, category, opening hours or a cover image, so the UI does not invent those fields.
+
 Verification:
 
 ```bash
@@ -573,6 +584,15 @@ Rules:
 - JPEG, PNG and static WebP uploads are validated and converted to WebP.
 - Each review supports at most five images.
 - Image objects remain private; API responses expose short-lived signed URLs.
+
+Public review UI:
+
+- `GET /api/v1/places/{place_id}/reviews` returns review images inline, avoiding one request per review.
+- Reviews show overall and per-criterion ratings, author, date, full content and up to five ready images.
+- Image URLs and metadata are runtime-validated; images use lazy loading, intrinsic dimensions and no-referrer requests.
+- Failed or expired signed images render an accessible fallback. Reloading the page requests fresh signed URLs.
+- Review cursor pages append in backend order and defensively remove duplicate IDs.
+- Place detail remains visible if the review request fails; review loading, error, empty and retry states are independent.
 
 Verification:
 

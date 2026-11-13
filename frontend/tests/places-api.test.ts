@@ -44,6 +44,102 @@ function asRequest(input: RequestInfo | URL): Request {
 }
 
 describe("PlacesClient", () => {
+  it("loads one place with public request options", async () => {
+    let capturedRequest: Request | undefined;
+
+    const client = new PlacesClient({
+      baseUrl: `${BASE_URL}/`,
+      fetcher: async (input) => {
+        capturedRequest = asRequest(input);
+        return jsonResponse(testPlace);
+      },
+    });
+
+    assert.deepEqual(await client.getPlace(testPlace.id), testPlace);
+    assert.ok(capturedRequest);
+
+    const url = new URL(capturedRequest.url);
+    assert.equal(url.pathname, `/api/v1/places/${testPlace.id}`);
+    assert.equal(url.search, "");
+    assert.equal(capturedRequest.method, "GET");
+    assert.equal(capturedRequest.credentials, "omit");
+    assert.equal(capturedRequest.cache, "no-store");
+    assert.equal(capturedRequest.headers.get("Accept"), "application/json");
+  });
+
+  it("rejects invalid detail ids before making a request", async () => {
+    let requests = 0;
+    const client = new PlacesClient({
+      baseUrl: BASE_URL,
+      fetcher: async () => {
+        requests += 1;
+        return jsonResponse(testPlace);
+      },
+    });
+
+    for (const placeId of [
+      0,
+      -1,
+      1.5,
+      Number.MAX_SAFE_INTEGER + 1,
+    ]) {
+      await assert.rejects(client.getPlace(placeId), RangeError);
+    }
+
+    assert.equal(requests, 0);
+  });
+
+  it("keeps not-found detail errors from the API", async () => {
+    const client = new PlacesClient({
+      baseUrl: BASE_URL,
+      fetcher: async () =>
+        jsonResponse({ detail: "Place not found" }, 404),
+    });
+
+    await assert.rejects(
+      client.getPlace(999),
+      (error: unknown) => {
+        assert.ok(error instanceof ApiError);
+        assert.equal(error.status, 404);
+        assert.equal(error.detail, "Place not found");
+        return true;
+      },
+    );
+  });
+
+  it("rejects an invalid place detail contract", async () => {
+    const client = new PlacesClient({
+      baseUrl: BASE_URL,
+      fetcher: async () =>
+        jsonResponse({ ...testPlace, review_count: -1 }),
+    });
+
+    await assert.rejects(
+      client.getPlace(testPlace.id),
+      ApiContractError,
+    );
+  });
+
+  it("forwards an abort signal to the detail request", async () => {
+    const reason = new DOMException("superseded", "AbortError");
+    const controller = new AbortController();
+    controller.abort(reason);
+
+    const client = new PlacesClient({
+      baseUrl: BASE_URL,
+      fetcher: async (input) => {
+        const request = asRequest(input);
+        assert.equal(request.signal.aborted, true);
+        throw request.signal.reason;
+      },
+    });
+
+    await assert.rejects(
+      client.getPlace(testPlace.id, controller.signal),
+      (error: unknown) => error === reason,
+    );
+  });
+
   it("serializes filters and an opaque cursor without losing zeroes", async () => {
     let capturedRequest: Request | undefined;
 

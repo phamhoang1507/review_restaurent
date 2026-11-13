@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import { useAuth } from "./auth/auth-context";
+import { PlaceDetailPage } from "./places/PlaceDetailPage";
 import { PlacesPage } from "./places/PlacesPage";
 import {
   AccountPage,
@@ -97,6 +98,7 @@ function App() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="places" element={<PlacesPage />} />
+        <Route path="places/:placeId" element={<PlaceDetailPage />} />
         <Route path="login" element={<AuthPage mode="login" />} />
         <Route path="register" element={<AuthPage mode="register" />} />
 
